@@ -829,13 +829,15 @@ function yx(y){let i=ERAS.findIndex(e=>y<e.b);if(i<0)i=ERAS.length-1;const e=ERA
 const tkEl=[],chEl=[];
 function buildOverview(){
   const bands=$('#bands');bands.innerHTML='';
-  ERAS.forEach((e,i)=>{const b=document.createElement('div');b.className='band';b.style.left=W[i].a*100+'%';b.style.width=W[i].w*100+'%';b.textContent=e.n;b.title=e.n+' '+e.s;b.onclick=()=>{const f=EV.find(x=>x.era===i&&visible(x));if(f){manual();go(f.id)}};bands.appendChild(b)});
+  ERAS.forEach((e,i)=>{const b=document.createElement('div');b.className='band';b.style.left=W[i].a*100+'%';b.style.width=W[i].w*100+'%';b.textContent=e.n;b.title=e.n+' '+e.s;b.onclick=()=>{manual();let f=EV.find(x=>x.era===i&&visible(x));if(!f){f=EV.find(x=>x.era===i&&x.lv>=st.minLv)||EV.find(x=>x.era===i);if(f)leaveFilter(f)}if(f){lensUser=0;go(f.id)}};bands.appendChild(b)});
   const yrs=$('#years');yrs.innerHTML='';
   [1840,1860,1880,1900,1919,1927,1937,1945,1949,1956,1966,1978,1992,2002,2012,2022].forEach(y=>{const s=document.createElement('span');s.style.left=yx(y)*100+'%';s.textContent=y;yrs.appendChild(s)});
   EV.forEach(e=>{const t=document.createElement('i');t.className='tk l'+e.lv;t.style.left=yx(e.y)*100+'%';t.style.setProperty('--c',KIND[e.k].c);track.appendChild(t);tkEl[e.id]=t});
 }
 function buildLens(){
   lens.innerHTML='';chEl.length=0;let ph=null;
+  if(!st.thread&&(st.era>=0||st.fav||st.minLv>1||st.kinds.size<4)){const parts=[];if(st.era>=0)parts.push(ERAS[st.era].n);if(st.minLv>1)parts.push(st.minLv===3?'只看必背':'重要以上');if(st.fav)parts.push('只看收藏');if(st.kinds.size<4)parts.push([...st.kinds].map(k=>KIND[k].n.split(' ')[0]).join('、'));
+    const h=document.createElement('div');h.className='thrh';h.innerHTML=`<b>筛选：${esc(parts.join(' · '))}</b><button id="fltX">显示全部</button>`;lens.appendChild(h);setTimeout(()=>{const x=$('#fltX');if(x)x.onclick=showAll})}
   if(st.thread){const T=st.thread,L=T.list();const h=document.createElement('div');h.className='thrh';h.innerHTML=`<b>${esc(T.n)}</b><button id="thrX">退出串线</button>`;lens.appendChild(h);
     L.forEach((e,i)=>{if(i){const a=document.createElement('span');a.className='arr';a.textContent='→';lens.appendChild(a)}
       const b=document.createElement('button');b.className='ch lv'+e.lv;b.dataset.id=e.id;b.style.setProperty('--c',KIND[e.k].c);
@@ -852,7 +854,16 @@ lens.addEventListener('pointerdown',()=>lensUser=Date.now());
 function followLens(){const b=chEl[st.cur];if(!b||Date.now()-lensUser<1500)return;const x=b.offsetLeft+b.offsetWidth/2-lens.clientWidth/2;lens.scrollTo({left:x,behavior:RM?'auto':'smooth'})}
 let scrub=false,scrubTip=null;
 function nearestAt(cx){const r=track.getBoundingClientRect();const f=Math.max(0,Math.min(1,(cx-r.left)/r.width));
-  const vis=EV.filter(visible);if(!vis.length)return null;let best=vis[0];for(const e of vis)if(Math.abs(yx(e.y)-f)<Math.abs(yx(best.y)-f))best=e;return best}
+  const pool=EV.filter(e=>e.lv>=st.minLv&&st.kinds.has(e.k));const vis=pool.length?pool:EV;let best=vis[0];for(const e of vis)if(Math.abs(yx(e.y)-f)<Math.abs(yx(best.y)-f))best=e;
+  if(!visible(best))leaveFilter(best);return best}
+/* 拖到筛选范围之外时：时期筛选自动切到那个时期，串线/收藏筛选自动退出 */
+function leaveFilter(e){if(st.thread){st.thread=null;$('#tThread').setAttribute('aria-pressed','false')}
+  if(st.fav){st.fav=false;$('#tFav').setAttribute('aria-pressed','false')}
+  if(st.era>=0&&e.era!==st.era){st.era=e.era;erasNav.querySelectorAll('.chip').forEach((x,j)=>x.setAttribute('aria-pressed',j===e.era+1))}
+  if(!visible(e)){st.kinds=new Set(Object.keys(KIND));lgd.querySelectorAll('.lg').forEach(x=>x.setAttribute('aria-pressed','true'));st.minLv=1;paintLv()}
+  buildLens()}
+function showAll(){st.thread=null;st.fav=false;st.era=-1;st.kinds=new Set(Object.keys(KIND));st.minLv=1;try{localStorage.setItem('sgmap.lv','1')}catch(e){}
+  $('#tThread').setAttribute('aria-pressed','false');$('#tFav').setAttribute('aria-pressed','false');erasNav.querySelectorAll('.chip').forEach((x,j)=>x.setAttribute('aria-pressed',j===0));lgd.querySelectorAll('.lg').forEach(x=>x.setAttribute('aria-pressed','true'));paintLv();refilter()}
 track.addEventListener('pointerdown',ev=>{track.setPointerCapture(ev.pointerId);scrub=true;manual();lensUser=0;
   scrubTip=document.createElement('div');scrubTip.className='scrubtip';$('#head').appendChild(scrubTip);
   const b=nearestAt(ev.clientX);if(b)go(b.id,{quick:true})});
