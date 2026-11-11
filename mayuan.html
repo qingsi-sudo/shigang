@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="考研政治马原原理动画：51 个原理的分步机制动画，带必背分级、挖空、连播和闯关。"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}.swt{display:inline-flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden;flex:none}.swt a,.swt span{padding:5px 12px;font-size:13px;font-weight:700;text-decoration:none;color:var(--fg2);white-space:nowrap}.swt span{background:var(--gold);color:var(--ink)}.swt a:hover{background:var(--raise);color:var(--fg)}</style></head><body>
+<title>马原原理动画</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* 布局：顶栏 / 左侧目录 + 中间动画舞台 + 右侧原理卡。与史纲地图同一套深色“夜图”风格，刻意单主题。 */
+:root{
+  color-scheme:dark;
+  --ink:#0e1013; --stage:#121519; --panel:#15181d; --raise:#1c2026; --line:#2a2f37; --line2:#363c46;
+  --fg:#ece6d8; --fg2:#bdb6a6; --muted:#857f72;
+  --gold:#e0a84e; --red:#de5a43; --blue:#79acd9; --jade:#5fbf9d;
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{height:100%;display:grid;grid-template-columns:250px minmax(0,1fr) 390px;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top top top" "nav stage side"}
+.top{grid-area:top;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding-block:10px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.brand{font-family:var(--serif);font-weight:900;font-size:17px;letter-spacing:.06em;white-space:nowrap}
+.brand i{font-style:normal;color:var(--gold)}
+.search{position:relative;flex:0 1 240px;min-width:150px}
+.search input{width:100%;box-sizing:border-box;background:var(--raise);border:1px solid var(--line);border-radius:6px;color:var(--fg);padding:7px 10px;font:inherit;font-size:13px}
+.search input::placeholder{color:var(--muted)}
+.results{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line2);border-radius:8px;box-shadow:0 18px 40px rgba(0,0,0,.5);max-height:60vh;overflow:auto;z-index:30;padding:4px}
+.results button{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 9px;border-radius:5px;cursor:pointer;font-size:13px}
+.results button:hover{background:var(--raise)}
+.results small{color:var(--muted);margin-right:8px}
+.tools{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tog{display:inline-flex;align-items:center;gap:6px;background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--fg2);white-space:nowrap}
+.tog[aria-pressed=true],.tog[data-lv="2"],.tog[data-lv="3"]{border-color:var(--gold);color:var(--gold);background:rgba(224,168,78,.08)}
+.tog.hot{color:var(--fg);border-color:var(--line2);font-weight:500}
+.tog .dot{width:7px;height:7px;border-radius:50%;background:var(--line2)}
+.tog[aria-pressed=true] .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+/* 目录 */
+.nav{grid-area:nav;border-right:1px solid var(--line);overflow:auto;padding:10px 8px 20px;min-height:0;overscroll-behavior:contain}
+.nav h4{margin:14px 8px 6px;font-size:11px;letter-spacing:.16em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between}
+.nav h4 span{letter-spacing:0;font-weight:400;font-variant-numeric:tabular-nums}
+.ni{display:flex;align-items:baseline;gap:6px;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:6px 8px;cursor:pointer;font-size:13px;color:var(--fg2);line-height:1.45}
+.ni:hover{background:var(--raise);color:var(--fg)}
+.ni.on{background:var(--raise);color:var(--fg);box-shadow:inset 2px 0 0 var(--gold)}
+.ni .st{flex:none;width:12px;color:var(--gold);font-size:11px}
+.ni.lv3{color:var(--fg);font-weight:500}
+.ni.lv1{opacity:.6}
+.ni .rd{margin-left:auto;color:var(--jade);font-size:11px}
+/* 舞台 */
+.stage{grid-area:stage;display:flex;flex-direction:column;min-height:0;min-width:0;background:radial-gradient(ellipse at 50% 40%,#171b21 0%,var(--stage) 60%,var(--ink) 100%);position:relative}
+.sthead{padding:16px 22px 0;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sthead .chn{font-size:12px;color:var(--gold);letter-spacing:.14em;font-weight:700}
+.sthead h1{margin:0;font-family:var(--serif);font-weight:900;font-size:clamp(22px,2.6vw,32px);line-height:1.25;letter-spacing:.02em;text-wrap:balance}
+.lvtag{font-size:12px;border-radius:4px;padding:1px 8px;font-weight:700;white-space:nowrap}
+.lvtag.l3{background:var(--gold);color:var(--ink)} .lvtag.l2{border:1px solid var(--gold);color:var(--gold)} .lvtag.l1{border:1px solid var(--line2);color:var(--muted)}
+.svgwrap{flex:1;min-height:0;display:grid;place-items:center;padding:6px 14px;cursor:pointer}
+#sv{width:100%;height:100%;max-height:100%;display:block}
+.cap{min-height:54px;margin:0 22px;padding:10px 14px;border-left:3px solid var(--gold);background:rgba(21,24,29,.8);border-radius:0 6px 6px 0;font-size:16px;font-weight:500;line-height:1.55;display:flex;align-items:center}
+.cap b{color:var(--gold);margin-right:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ctl{display:flex;align-items:center;gap:8px;padding:12px 22px max(14px,env(safe-area-inset-bottom,0px))}
+.ctl button{background:var(--raise);border:1px solid var(--line2);border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;color:var(--fg2)}
+.ctl button:hover{color:var(--fg);border-color:var(--muted)}
+.ctl button.pri{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700}
+.dots{display:flex;gap:5px;margin:0 6px}
+.dots i{width:18px;height:4px;border-radius:2px;background:var(--line2);transition:background .3s}
+.dots i.on{background:var(--gold)}
+.ctl .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+/* SVG 元素 */
+#sv text{font-family:var(--sans)}
+#sv [data-s]{opacity:0;transition:opacity .55s ease,transform .55s cubic-bezier(.2,1.2,.4,1)}
+#sv [data-s].on{opacity:1}
+#sv .pop{transform-box:fill-box;transform-origin:center;transform:scale(.7)}
+#sv .pop.on{transform:scale(1)}
+#sv .rise{transform:translateY(16px)} #sv .rise.on{transform:none}
+#sv .draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1s ease,opacity .2s}
+#sv .draw.on{stroke-dashoffset:0}
+#sv .bx{fill:var(--panel);stroke-width:1.6}
+#sv .t1{font-weight:700;fill:var(--fg);text-anchor:middle;dominant-baseline:central}
+#sv .t2{fill:var(--fg2);text-anchor:middle;dominant-baseline:central}
+#sv .lb{font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--stage);stroke-width:5px;stroke-linejoin:round}
+#sv .end{font-family:var(--serif);font-weight:900;fill:var(--gold);text-anchor:middle;dominant-baseline:central}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{opacity:.25}50%{opacity:.9}}
+#sv .glow.on{animation:glow 1.6s ease-in-out infinite}
+/* 原理卡 */
+.side{grid-area:side;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.card{flex:1;overflow:auto;padding:18px 22px 12px;min-height:0;overscroll-behavior:contain}
+.acts{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:4px}
+.acts button{background:none;border:0;border-right:1px solid var(--line);padding:8px 4px;font-size:12.5px;color:var(--fg2);cursor:pointer}
+.acts button:last-child{border-right:0}
+.acts button:hover{background:var(--raise);color:var(--fg)}
+.acts button[aria-pressed=true]{color:var(--gold)}
+.sec{padding:14px 0 8px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec h3{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--gold)}
+.sec h3.r{color:var(--red)} .sec h3.b{color:var(--blue)} .sec h3.j{color:var(--jade)}
+.sec p{margin:0;font-size:14.5px;line-height:1.85}
+mark{background:none;color:var(--gold);font-weight:700;border-bottom:1px solid rgba(224,168,78,.4);padding:0 1px}
+.blank mark{color:transparent;background:rgba(224,168,78,.16);border-radius:3px;border-bottom-color:var(--gold);cursor:pointer;user-select:none}
+.blank mark.show{color:var(--gold);background:none}
+.errbox{background:rgba(222,90,67,.08);border:1px solid rgba(222,90,67,.3);border-radius:6px;padding:10px 12px;font-size:14px;line-height:1.75}
+.exs{display:grid;gap:6px}
+.ex{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--raise);border-radius:6px;padding:8px 11px;font-size:13.5px}
+.ex span{color:var(--jade);font-size:12.5px;text-align:right}
+.blank .ex span{color:transparent;background:rgba(95,191,157,.14);border-radius:3px;cursor:pointer}
+.blank .ex span.show{color:var(--jade);background:none}
+.tmpl{font-size:13px;color:var(--fg2);line-height:1.8;background:var(--raise);border-radius:6px;padding:10px 12px}
+.tmpl b{color:var(--fg)}
+.nav2{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.nav2 button{background:none;border:0;text-align:left;padding:11px 18px;cursor:pointer;min-width:0}
+.nav2 button+button{border-left:1px solid var(--line);text-align:right}
+.nav2 button:hover{background:var(--raise)}
+.nav2 button:disabled{opacity:.35;cursor:default;background:none}
+.nav2 small{display:block;font-size:11px;color:var(--muted);letter-spacing:.1em}
+.nav2 span{display:block;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src{padding:9px 22px 12px;font-size:11px;color:var(--muted);border-top:1px solid var(--line)}
+.src b{color:var(--fg);font-weight:500}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card.anim>*{animation:rise .45s ease-out both}
+.card.anim>*:nth-child(2){animation-delay:.08s}.card.anim>*:nth-child(3){animation-delay:.16s}.card.anim>*:nth-child(4){animation-delay:.24s}.card.anim>*:nth-child(n+5){animation-delay:.32s}
+/* 闯关 */
+.qz .qh{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.qz .qh b{color:var(--gold)}
+.qz .bar{height:3px;background:var(--line);border-radius:2px;margin:8px 0 16px;overflow:hidden}
+.qz .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold));transition:width .4s}
+.qz .qt{font-size:12px;letter-spacing:.16em;color:var(--blue);font-weight:700}
+.qz .qq{font-family:var(--serif);font-weight:900;font-size:21px;line-height:1.5;margin:8px 0 14px;text-wrap:balance}
+.qz .clue{background:var(--raise);border-radius:6px;padding:10px 12px;font-size:14px;line-height:1.75;margin-bottom:14px}
+.qz .opts{display:grid;gap:8px}
+.qz .opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:7px;padding:11px 12px;cursor:pointer;font-size:14.5px}
+.qz .opt .n{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--panel);color:var(--muted);border:1px solid var(--line2)}
+.qz .opt.ok{border-color:var(--jade);background:rgba(95,191,157,.1)}
+.qz .opt.bad{border-color:var(--red);background:rgba(222,90,67,.1)}
+.qz .fb{margin-top:14px;border-radius:7px;padding:12px 13px;font-size:14px;line-height:1.7;animation:rise .35s ease-out both}
+.qz .fb.ok{background:rgba(95,191,157,.1);border:1px solid rgba(95,191,157,.4)}
+.qz .fb.bad{background:rgba(222,90,67,.08);border:1px solid rgba(222,90,67,.35)}
+.qz .fb b.v{display:block;font-size:15px;margin-bottom:4px}
+.qz .fb.ok b.v{color:var(--jade)} .qz .fb.bad b.v{color:var(--red)}
+.qz .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.qz .btn{flex:1;min-width:110px;background:var(--raise);border:1px solid var(--line2);border-radius:7px;padding:10px;cursor:pointer;font-size:14px}
+.qz .btn.pri{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700}
+.qz .btn:disabled{opacity:.4;cursor:default}
+.qz .big{font-family:var(--serif);font-weight:900;font-size:58px;line-height:1;color:var(--gold)}
+.qz .big small{font-size:20px;color:var(--fg2)}
+.qz p{color:var(--fg2);font-size:14px;line-height:1.75;margin:8px 0}
+.qz .list{display:grid;gap:2px}
+.qz .list button{text-align:left;background:none;border:0;border-radius:4px;padding:6px;cursor:pointer;font-size:13.5px;color:var(--fg2)}
+.qz .list button:hover{background:var(--raise);color:var(--fg)}
+.app.quizzing .nav{opacity:.3;pointer-events:none}
+.app.quizzing .nav2{display:none}
+/* 窄屏 */
+@media (max-width:1100px){.app{grid-template-columns:210px minmax(0,1fr) 340px}}
+@media (max-width:900px){
+  .app{height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"top" "nav" "stage" "side"}
+  .nav{border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px max(14px,env(safe-area-inset-left,0px));align-items:center}
+  .nav h4{margin:0 2px 0 8px;white-space:nowrap;flex:none}
+  .nav h4 span{display:none}
+  .ni{flex:none;width:auto;border:1px solid var(--line);white-space:nowrap}
+  .ni.on{box-shadow:none;border-color:var(--gold)}
+  .ni .rd{margin-left:4px}
+  .svgwrap{min-height:0;padding:4px 6px}
+  #sv{height:auto;aspect-ratio:800/430}
+  .side{border-left:0;border-top:1px solid var(--line)}
+  .card{overflow:visible}
+  .tools{margin-left:0}
+  .cap{font-size:14.5px;margin:0 14px}
+  .sthead{padding:12px 14px 0}
+  .ctl{padding:10px 14px 12px;flex-wrap:wrap}
+  .ctl .sp{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="swt" role="navigation" aria-label="切换主题"><a href="./">史纲地图</a><span>马原动画</span></div>
+    <div class="brand">考研政治<i> · </i>马原原理动画</div>
+    <div class="search"><input id="q" type="search" placeholder="搜原理、成语、关键词…" autocomplete="off" aria-label="搜索"><div class="results" id="res" hidden></div></div>
+    <div class="tools">
+      <button class="tog hot" id="tQuiz" aria-pressed="false">闯关测验</button>
+      <button class="tog" id="tLv" title="按重要度筛选">全部原理</button>
+      <button class="tog" id="tBlank" aria-pressed="false" title="把关键词挖空，点一下显示（B）"><span class="dot"></span>挖空</button>
+      <button class="tog" id="tPlay" aria-pressed="false" title="自动播完一个接下一个（空格）"><span class="dot"></span>连播</button>
+    </div>
+  </header>
+  <nav class="nav" id="nav" aria-label="原理目录"></nav>
+  <section class="stage">
+    <div class="sthead"><span class="chn" id="chn"></span><h1 id="ttl"></h1><span class="lvtag" id="lvt"></span></div>
+    <div class="svgwrap" id="wrap" title="点击画面进入下一步"><svg id="sv" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="cap" id="cap"></div>
+    <div class="ctl"><button id="cPrev">◀ 上一步</button><button class="pri" id="cNext">下一步 ▶</button><div class="dots" id="dots"></div><button id="cRe">↻ 重播</button><span class="sp">点画面或按 → 进入下一步</span></div>
+  </section>
+  <aside class="side">
+    <div class="card" id="card"></div>
+    <div class="nav2"><button id="bPrev"><small>上一个 ↑</small><span></span></button><button id="bNext"><small>↓ 下一个</small><span></span></button></div>
+    <div class="src">已掌握 <b id="nRead">0</b>/<span id="nAll"></span> · 记录只存在这台设备的浏览器里</div>
+  </aside>
+</div>
+
+<script>
+/* 马原原理数据：ch 章；lv 3 必背 / 2 重要 / 1 了解；a 动画；yl 原理；ff 方法论；err 易错；ex 例子[名称,说明] */
+const CH=['唯物论','辩证法','认识论','唯物史观','政治经济学','科学社会主义'];
+const D=[
+/* ============ 唯物论 ============ */
+{ch:0,t:'哲学基本问题',lv:2,a:{type:'tree',root:'思维和存在的关系',kids:[{n:'何者为第一性',sub:'划分唯物、唯心',kids:['唯物主义：存在第一性','唯心主义：思维第一性']},{n:'有无同一性',sub:'划分可知、不可知',kids:['可知论','不可知论']}],end:'两个方面，各管一条分界线'},
+ yl:'哲学基本问题是==思维和存在的关系==问题。第一方面：何者为==第一性==，是划分==唯物主义和唯心主义==的唯一标准；第二方面：思维和存在有无==同一性==，是划分==可知论和不可知论==的标准。',
+ ff:'判断一个观点属于哪一派，先看它回答的是“谁决定谁”，还是“能不能认识”。',
+ err:'划分唯物、唯心的==唯一标准==是第一性问题；辩证法与形而上学的分歧不属于哲学基本问题。',
+ ex:[['“心外无物”','主观唯心主义'],['“理在事先”','客观唯心主义'],['“气者，理之依也”','唯物主义']]},
+{ch:0,t:'物质与意识的辩证关系',lv:3,a:{type:'duo',a:'物质',aSub:'客观实在性',b:'意识',bSub:'人脑对客观世界的反映',ab:'决定',ba:'能动的反作用',abSub:'起源 · 本质 · 内容都依赖物质',baSub:'目的性 · 创造性 · 指导实践 · 调控生理',end:'一切从实际出发 + 发挥主观能动性'},
+ yl:'==物质决定意识==：意识是物质世界长期发展的产物，是人脑的机能，是对客观存在的反映。==意识对物质具有能动的反作用==：正确的意识促进事物发展，错误的意识阻碍事物发展。',
+ ff:'坚持==一切从实际出发，实事求是==；同时重视意识的作用，==发挥主观能动性==，树立正确的思想意识。',
+ err:'意识的能动作用再大，也不能==创造或消灭==物质和规律；承认反作用不是二元论。',
+ ex:[['画饼充饥','夸大意识作用'],['巧妇难为无米之炊','物质决定意识'],['胸有成竹','意识的能动性'],['望梅止渴','意识调控生理活动']]},
+{ch:0,t:'主观能动性与客观规律性',lv:3,a:{type:'duo',a:'尊重客观规律',aSub:'前提和基础',b:'发挥主观能动性',bSub:'必要条件',ab:'是……的前提',ba:'才能认识和利用',end:'实践是两者统一的基础'},
+ yl:'==尊重客观规律==是正确发挥主观能动性的==前提==；只有==充分发挥主观能动性==，才能正确认识和利用客观规律。二者统一的基础是==实践==。',
+ ff:'把==尊重规律和发挥能动性==结合起来：既不能违背规律蛮干，也不能在规律面前无所作为。',
+ err:'规律不能被创造、改变或消灭，人只能==认识和利用==规律，改变规律起作用的==条件==。',
+ ex:[['拔苗助长','违背客观规律'],['庖丁解牛','认识并利用规律'],['人定胜天','夸大主观能动性'],['听天由命','否认主观能动性']]},
+{ch:0,t:'世界的物质统一性',lv:2,a:{type:'web',center:'物质',nodes:[{n:'自然界',sub:'本质上是物质的'},{n:'人类社会',sub:'本质上是生产实践基础上的物质体系'},{n:'人的意识',sub:'统一于物质'}],end:'世界的真正统一性在于它的物质性'},
+ yl:'世界的统一性在于它的==物质性==：自然界是物质的；人类社会本质上是==生产实践基础上==形成的物质体系；人的意识统一于物质。',
+ ff:'世界的物质统一性原理是==一切从实际出发==的哲学基础。',
+ err:'世界统一于==物质==，不是统一于“存在”，更不是统一于精神。',
+ ex:[['“天地合而万物生”','世界统一于物质']]},
+{ch:0,t:'运动与静止',lv:2,a:{type:'unity',a:'运动',b:'静止',l2:'运动是绝对的、无条件的',l3:'静止是相对的、有条件的，是运动的特殊状态',l4:'动中有静，静中有动',end:'绝对运动与相对静止的统一'},
+ yl:'==运动是绝对的==、无条件的、永恒的；==静止是相对的==、有条件的、暂时的，是运动的==特殊状态==。物质世界是绝对运动和相对静止的统一。',
+ ff:'既要看到事物的变化发展，也要承认事物的相对稳定，才能区分和认识事物。',
+ err:'只承认运动否认静止是==相对主义和诡辩论==；只承认静止否认运动是==形而上学不变论==。',
+ ex:[['“人不能两次踏进同一条河流”','运动绝对、静止相对'],['“人一次也不能踏进同一条河流”','否认相对静止，诡辩论'],['刻舟求剑','否认运动'],['“坐地日行八万里”','运动与静止的统一']]},
+/* ============ 辩证法 ============ */
+{ch:1,t:'联系的观点',lv:3,a:{type:'web',center:'联系',nodes:[{n:'客观性',sub:'不以人的意志为转移'},{n:'普遍性',sub:'事物内部、之间、整个世界'},{n:'多样性',sub:'内外 · 直接间接 · 本质非本质'},{n:'条件性',sub:'一切以时间地点条件为转移'}],end:'用联系的、全面的观点看问题'},
+ yl:'联系是指事物内部各要素之间和事物之间==相互影响、相互制约、相互作用==的关系。联系具有==客观性、普遍性、多样性、条件性==。',
+ ff:'坚持用==联系的观点==看问题，反对孤立的观点；善于分析事物的具体联系，重视==条件==，一切以时间、地点、条件为转移。',
+ err:'联系是普遍的，但==不是任何两个事物之间都有联系==；人可以根据固有联系建立新的具体联系，但不能主观臆造联系。',
+ ex:[['唇亡齿寒','联系的普遍性'],['城门失火，殃及池鱼','联系的普遍性'],['牵一发而动全身','整体与部分'],['橘生淮南则为橘','联系的条件性']]},
+{ch:1,t:'发展的观点',lv:2,a:{type:'stairs',steps:['旧事物','新事物萌芽','新事物壮大','新事物取代旧事物'],end:'发展的实质：新事物的产生和旧事物的灭亡'},
+ yl:'发展是==前进的、上升的运动==，实质是==新事物的产生和旧事物的灭亡==。新事物符合事物发展的必然趋势，具有强大生命力，必然战胜旧事物。',
+ ff:'坚持用==发展的观点==看问题，要有创新精神，支持新事物；把事物如实地看作一个==过程==。',
+ err:'判断新旧事物的标准是==是否符合发展的必然趋势==，不是出现时间的先后、形式的新旧或力量的强弱。',
+ ex:[['“沉舟侧畔千帆过，病树前头万木春”','新事物必然取代旧事物'],['“芳林新叶催陈叶”','发展的实质']]},
+{ch:1,t:'对立统一规律：同一性与斗争性',lv:3,a:{type:'unity',a:'矛盾的一方',b:'矛盾的另一方',l2:'斗争性：相互排斥、相互分离（绝对的）',l3:'同一性：相互依存、相互贯通（相对的）',l4:'一定条件下相互转化',end:'同一性和斗争性相结合，推动事物发展'},
+ yl:'矛盾是事物内部或事物之间的==对立统一==。==同一性==指矛盾双方相互依存、相互贯通，是有条件的、相对的；==斗争性==指相互排斥、相互分离，是无条件的、绝对的。二者相互联结，共同推动事物发展。对立统一规律是唯物辩证法的==实质和核心==。',
+ ff:'在对立中把握统一，在统一中把握对立；坚持==矛盾分析法==，一分为二地看问题。',
+ err:'同一性是==相对的==、斗争性是==绝对的==，不要记反；斗争性不等于“斗争”这种具体形式。',
+ ex:[['“祸兮福之所倚，福兮祸之所伏”','矛盾双方相互转化'],['相反相成','对立统一'],['“有无相生，难易相成”','矛盾的同一性'],['塞翁失马','一定条件下转化']]},
+{ch:1,t:'矛盾的普遍性与特殊性',lv:3,a:{type:'duo',a:'普遍性（共性）',aSub:'事事有矛盾，时时有矛盾',b:'特殊性（个性）',bSub:'各有其特点',ab:'寓于特殊性之中',ba:'包含并体现普遍性',end:'具体问题具体分析 · 普遍原理与具体实际相结合'},
+ yl:'矛盾存在于一切事物中、贯穿于每一事物发展过程的始终（==普遍性==）；不同事物的矛盾、同一事物不同阶段的矛盾各有特点（==特殊性==）。==普遍性寓于特殊性之中==，特殊性包含普遍性，二者在一定条件下相互转化。这是关于事物矛盾问题的==精髓==。',
+ ff:'坚持==具体问题具体分析==；把马克思主义==普遍原理同具体实际相结合==，这是中国特色社会主义的哲学基础。',
+ err:'“共性与个性的关系”是矛盾问题的==精髓==；对立统一规律是辩证法的==实质和核心==，两个词别混。',
+ ex:[['对症下药','具体问题具体分析'],['因材施教','矛盾的特殊性'],['“白马非马”','割裂共性与个性'],['量体裁衣','具体问题具体分析']]},
+{ch:1,t:'主要矛盾与矛盾的主要方面',lv:3,a:{type:'split',title:'矛盾力量的不平衡',max:10,stages:[
+  {cap:'主要矛盾处于支配地位，决定事物发展',parts:[{n:'主要矛盾',w:7,c:'red'},{n:'次要矛盾',w:3,c:'blue'}]},
+  {cap:'次要矛盾也会影响主要矛盾，条件变了可以转化',parts:[{n:'原主要矛盾',w:3,c:'blue'},{n:'上升为主要矛盾',w:7,c:'red'}]},
+  {cap:'一个矛盾内部：主要方面决定事物的性质',parts:[{n:'矛盾的主要方面',w:7,c:'gold'},{n:'次要方面',w:3,c:'jade'}]}],end:'两点论和重点论相统一'},
+ yl:'==主要矛盾==在事物发展中处于支配地位、起决定作用；==矛盾的主要方面==处于支配地位，==决定事物的性质==。主次矛盾、矛盾主次方面相互影响，在一定条件下相互转化。',
+ ff:'坚持==两点论和重点论的统一==：既要全面看问题，又要抓重点、看主流；善于抓住主要矛盾。',
+ err:'==“抓重点、抓关键”==对应主要矛盾；==“看主流、看性质”==对应矛盾的主要方面。',
+ ex:[['“擒贼先擒王”','抓主要矛盾'],['牵牛要牵牛鼻子','抓主要矛盾'],['“金无足赤，人无完人”','看主流（主要方面）'],['眉毛胡子一把抓','没有重点论'],['“一叶障目”','没有两点论']]},
+{ch:1,t:'质量互变规律',lv:3,a:{type:'quant',from:'旧质',to:'新质',unit:'量的积累',end:'量变是质变的必要准备，质变是量变的必然结果'},
+ yl:'==量变==是事物数量的增减和次序的变动，==质变==是事物性质的根本变化。量变是质变的==必要准备==，质变是量变的==必然结果==；质变为新的量变开辟道路。==度==是保持事物质的稳定性的数量界限。',
+ ff:'重视==量的积累==，脚踏实地；抓住时机==促成质变==；坚持==适度原则==。',
+ err:'区分量变和质变的标志是==是否超出度==；量变中也有部分质变，但不是任何量变都会引起质变，要达到一定程度。',
+ ex:[['“千里之堤，溃于蚁穴”','量变引起质变'],['“九层之台，起于累土”','量的积累'],['过犹不及','适度原则'],['水滴石穿','量变到质变'],['“不积跬步，无以至千里”','量的积累']]},
+{ch:1,t:'否定之否定规律',lv:3,a:{type:'spiral',nodes:['肯定','否定','否定之否定'],end:'前进性与曲折性的统一：螺旋式上升'},
+ yl:'事物的发展经过==肯定—否定—否定之否定==，表现为==螺旋式上升或波浪式前进==，是==前进性与曲折性的统一==。辩证的否定是事物的==自我否定==，是发展的环节和联系的环节，实质是==“扬弃”==。',
+ ff:'对一切事物采取==科学分析==的态度，既不全盘肯定也不全盘否定；坚信==前途是光明的==，准备走==曲折的路==。',
+ err:'否定之否定不是回到原点，而是==在更高阶段上的“回复”==；辩证否定是既克服又保留。',
+ ex:[['“山重水复疑无路，柳暗花明又一村”','前进性与曲折性'],['“取其精华，去其糟粕”','辩证否定（扬弃）'],['“长江后浪推前浪”','发展的前进性']]},
+{ch:1,t:'内容与形式',lv:2,a:{type:'duo',a:'内容',aSub:'构成事物的一切要素的总和',b:'形式',bSub:'把内容各要素统一起来的结构或表现方式',ab:'决定',ba:'反作用',end:'重视内容，善于运用形式；反对形式主义'},
+ yl:'==内容决定形式==，==形式反作用于内容==：适合内容的形式促进内容发展，不适合的形式阻碍内容发展。',
+ ff:'首先重视内容，同时善于运用形式，==反对形式主义==。',err:'',ex:[['“皮之不存，毛将焉附”','内容决定形式'],['削足适履','形式不适合内容']]},
+{ch:1,t:'本质与现象',lv:2,a:{type:'duo',a:'本质',aSub:'事物的内在联系，靠理性把握',b:'现象',bSub:'事物的外部表现，靠感官感知',ab:'通过……表现出来',ba:'（真象、假象）都表现本质',end:'透过现象看本质'},
+ yl:'==本质==是事物的根本性质，==现象==是事物的外部联系和表面特征。本质决定现象并通过现象表现出来；现象（包括==假象==）都是本质的表现。',
+ ff:'==透过现象看本质==，不被假象迷惑。',
+ err:'==假象==也是客观存在的，也是本质的表现；假象≠错觉（错觉是主观的）。',
+ ex:[['“见微知著”','透过现象看本质'],['“一叶知秋”','透过现象看本质'],['海市蜃楼','假象也是客观的']]},
+{ch:1,t:'原因与结果',lv:2,a:{type:'duo',a:'原因',aSub:'引起某种现象的现象',b:'结果',bSub:'被引起的现象',ab:'引起',ba:'反过来又成为原因',end:'增强预见性，正确总结经验教训'},
+ yl:'原因和结果的区分既是==确定的==又是==不确定的==：在具体关系中先因后果，在世界的普遍联系中==互为因果==、相互转化。存在一因多果、一果多因。',
+ ff:'提高活动的==自觉性和预见性==。',
+ err:'因果联系有时间先后，但==先后关系不一定是因果关系==。',
+ ex:[['“种瓜得瓜，种豆得豆”','因果联系'],['“善有善报”','不是严格的因果必然'],['“鹬蚌相争，渔翁得利”','一因多果']]},
+{ch:1,t:'必然与偶然',lv:2,a:{type:'duo',a:'必然性',aSub:'一定如此的趋势，根本原因决定',b:'偶然性',bSub:'可以这样也可以那样，非根本原因引起',ab:'通过……表现出来，为自己开辟道路',ba:'背后隐藏着、补充着必然',end:'重视必然规律，善于抓住偶然机遇'},
+ yl:'==必然性==存在于偶然性之中，通过大量偶然性表现出来；==偶然性==是必然性的表现形式和补充，背后隐藏着必然性。二者在一定条件下相互转化。',
+ ff:'立足于必然，认识和利用规律；同时不忽视偶然，==善于抓住机遇==。',
+ err:'必然性和偶然性在事物发展中的==地位不同==：必然性决定发展方向，偶然性只起加速或延缓作用。',
+ ex:[['守株待兔','把偶然当必然'],['“机遇偏爱有准备的头脑”','偶然背后有必然'],['歪打正着','偶然性']]},
+{ch:1,t:'可能性与现实性',lv:2,a:{type:'chain',nodes:['不可能性','抽象的可能','现实的可能','现实'],labels:['没有根据','条件暂不具备','条件具备 + 主观努力'],end:'立足现实，争取好的可能，防止坏的可能'},
+ yl:'==现实性==是已经实现了的可能；==可能性==是包含在现实中的发展趋势。可能分为==现实的可能==（现阶段有充分根据）和==抽象的可能==（现阶段条件不具备）。可能转化为现实需要==条件==和==主观努力==。',
+ ff:'==立足现实==，展望未来，做好应对各种可能的准备，争取好的可能性实现。',
+ err:'抽象的可能≠不可能：前者在将来条件具备时可以转化，后者永远不能实现。',
+ ex:[['“有志者事竟成”','发挥主观能动性使可能变现实'],['水中捞月','不可能性'],['未雨绸缪','防止坏的可能']]},
+{ch:1,t:'辩证思维方法',lv:1,a:{type:'web',center:'辩证思维',nodes:[{n:'归纳与演绎',sub:'个别↔一般'},{n:'分析与综合',sub:'分解↔整合'},{n:'抽象与具体',sub:'感性具体→抽象→思维具体'},{n:'逻辑与历史相统一',sub:'理论顺序与历史进程一致'}],end:'是辩证规律在思维中的运用'},
+ yl:'辩证思维方法包括==归纳与演绎==、==分析与综合==、==抽象与具体==、==逻辑与历史相统一==。',
+ ff:'要提高==辩证思维、历史思维、系统思维、战略思维、创新思维、法治思维、底线思维==能力。',err:'',ex:[['“解剖麻雀”','分析与综合 / 由个别到一般']]},
+/* ============ 认识论 ============ */
+{ch:2,t:'实践与认识的关系',lv:3,a:{type:'duo',a:'实践',aSub:'直接现实性 · 自觉能动性 · 社会历史性',b:'认识',bSub:'主体对客体的能动反映',ab:'决定',ba:'反作用（指导实践）',abSub:'来源 · 动力 · 目的 · 检验标准',end:'坚持实践第一，重视科学理论的指导'},
+ yl:'==实践决定认识==：实践是认识的==来源==、发展的==动力==、==目的==、检验真理的==唯一标准==。==认识反作用于实践==：正确的认识促进实践发展，错误的认识把实践引向歧途。',
+ ff:'坚持==实践第一==的观点，在实践中检验和发展真理；重视==科学理论==的指导作用。',
+ err:'实践是认识的==唯一来源==，但获得认识的==途径==有两条：直接经验和间接经验。',
+ ex:[['“纸上得来终觉浅，绝知此事要躬行”','实践是认识的来源'],['“不入虎穴，焉得虎子”','实践出真知'],['纸上谈兵','脱离实践'],['“没有革命的理论，就没有革命的运动”','认识对实践的反作用']]},
+{ch:2,t:'认识的过程：两次飞跃',lv:3,a:{type:'cycle',nodes:['实践','感性认识','理性认识','回到实践'],edges:['','第一次飞跃','第二次飞跃（更重要）',''],center:'循环往复\n以至无穷',end:'实践、认识、再实践、再认识'},
+ yl:'认识过程有==两次飞跃==：从实践到认识，由==感性认识上升到理性认识==（第一次飞跃）；从认识到实践，由==理性认识回到实践==（第二次飞跃，意义更重大）。',
+ ff:'第一次飞跃的条件：占有==丰富而真实==的感性材料 + 运用科学思维方法==加工制作==（去粗取精、去伪存真、由此及彼、由表及里）。',
+ err:'第二次飞跃==更重要==：认识世界的目的在于改造世界，理论也只有回到实践才能被检验和发展。',
+ ex:[['“问渠那得清如许，为有源头活水来”','认识来源于实践'],['“实践、认识、再实践、再认识”','认识的反复性']]},
+{ch:2,t:'感性认识与理性认识',lv:2,a:{type:'duo',a:'感性认识',aSub:'感觉 · 知觉 · 表象（直接性、具体性）',b:'理性认识',bSub:'概念 · 判断 · 推理（间接性、抽象性）',ab:'有待于发展为',ba:'依赖于',end:'二者相互渗透，统一于实践'},
+ yl:'==理性认识依赖于感性认识==，==感性认识有待于发展和深化为理性认识==，二者相互渗透、相互包含。割裂二者会犯==经验论==或==唯理论==的错误，在实践中表现为==经验主义==和==教条主义==。',
+ ff:'既要重视调查研究、积累感性材料，又要勤于思考、上升到理论。',
+ err:'感性认识不一定是错的，理性认识不一定是对的：区别在于==深度==，不在于正确与否。',
+ ex:[['“感觉到了的东西不能立刻理解它，只有理解了的东西才更深刻地感觉它”','二者的辩证关系'],['“眼见为实”','片面夸大感性认识']]},
+{ch:2,t:'认识的反复性与无限性',lv:2,a:{type:'spiral',nodes:['实践','认识','再实践','再认识'],end:'认识运动是波浪式前进、螺旋式上升的过程'},
+ yl:'由于主客观条件的限制，对一个事物的正确认识往往要==多次反复==才能完成（反复性）；世界无限发展，认识也==永无止境==（无限性）。',
+ ff:'==与时俱进，开拓创新==，在实践中认识和发现真理，在实践中检验和发展真理。',err:'',
+ ex:[['“吃一堑，长一智”','认识的反复性'],['“路漫漫其修远兮”','认识的无限性']]},
+{ch:2,t:'真理的绝对性与相对性',lv:3,a:{type:'unity',a:'绝对性',b:'相对性',l2:'绝对性：内容客观、可无限接近',l3:'相对性：广度有限、深度有限',l4:'相对中有绝对，绝对寓于相对；相对走向绝对',end:'真理是具体的、有条件的，要在实践中发展'},
+ yl:'真理是==客观的==（内容客观、检验标准客观）。真理既有==绝对性==（主客观统一的确定性、发展的无限性）又有==相对性==（广度和深度有限）。二者相互依存、相互包含，真理永远处在由相对走向绝对的转化中。',
+ ff:'对待马克思主义既要==坚持==又要==发展==：反对教条主义（只讲绝对性）和相对主义（只讲相对性）。',
+ err:'真理的==形式是主观的、内容是客观的==；真理面前人人平等，“真理因人而异”是错的。',
+ ex:[['“真理向前多走一小步就会变成谬误”','真理是具体的、有条件的'],['“放之四海而皆准”（绝对化理解）','否认真理的相对性']]},
+{ch:2,t:'真理与谬误',lv:2,a:{type:'unity',a:'真理',b:'谬误',l2:'性质对立：一定范围内界限分明',l3:'相比较而存在、相斗争而发展',l4:'超出一定条件，真理变谬误；谬误可以通向真理',end:'失败是成功之母'},
+ yl:'真理与谬误是==对立统一==的：在确定的对象和范围内，二者的对立是绝对的；超出一定范围，真理和谬误可以==相互转化==。真理在同谬误的斗争中发展。',
+ ff:'正确对待错误和失败，善于==从错误中学习==。',err:'真理和谬误的转化是==有条件的==：谬误本身不会自动变成真理，是“认识谬误、纠正谬误”的过程通向真理。',
+ ex:[['“失败是成功之母”','谬误可以向真理转化'],['“吃一堑，长一智”','从错误中学习']]},
+{ch:2,t:'实践是检验真理的唯一标准',lv:2,a:{type:'unity',a:'确定性',b:'不确定性',l2:'确定性：唯一标准，终究能检验',l3:'不确定性：受具体历史条件限制',l4:'实践不断发展，检验不断推进',end:'逻辑证明只是补充，不能代替实践'},
+ yl:'实践是检验真理的==唯一标准==，由真理的本性（主客观相符合）和实践的特点（==直接现实性==）决定。实践标准是==确定性与不确定性的统一==。',
+ ff:'一切认识都要拿到实践中去检验；逻辑证明是重要==补充==，但不能取代实践。',
+ err:'“多数人认同”“权威说的”“有用的”都不是检验标准。',
+ ex:[['“实践是检验真理的唯一标准”大讨论','实践标准'],['“有用即真理”','实用主义错误']]},
+{ch:2,t:'真理与价值的辩证统一',lv:3,a:{type:'duo',a:'真理尺度',aSub:'按世界的本来面目和规律办事（合规律性）',b:'价值尺度',bSub:'按人的需要和利益办事（合目的性）',ab:'是……的前提',ba:'是追求真理的动力',end:'合规律性与合目的性的统一'},
+ yl:'实践中人们受==真理尺度==和==价值尺度==的制约。成功的实践必然是==真理和价值的统一==：价值的形成和实现以坚持真理为==前提==，真理又以价值为==动力==和归宿。',
+ ff:'既要==尊重规律、实事求是==，又要==以人民为中心==，把合规律性与合目的性统一起来。',
+ err:'价值评价因主体不同而有差异，但==不是主观随意的==：评价要以对客体的正确认识为基础。',
+ ex:[['“绿水青山就是金山银山”','真理尺度与价值尺度的统一'],['“仁者见仁，智者见智”','价值评价的主体性']]},
+{ch:2,t:'认识世界与改造世界',lv:2,a:{type:'chain',nodes:['必然王国','认识必然','改造世界','自由王国'],labels:['受盲目必然性支配','认识规律','利用规律'],end:'自由是对必然的认识和对客观世界的改造'},
+ yl:'认识世界和改造世界是人类两项基本活动，相互依赖、相互制约。==自由==是对==必然的认识==和对==客观世界的改造==；自由是有条件的、历史的。',
+ ff:'改造客观世界的同时也要==改造主观世界==；坚持理论创新与实践创新的良性互动。',err:'自由不是摆脱规律，而是==认识并利用规律==。',
+ ex:[['“从心所欲不逾矩”','自由与必然的统一']]},
+/* ============ 唯物史观 ============ */
+{ch:3,t:'社会存在与社会意识',lv:3,a:{type:'duo',a:'社会存在',aSub:'自然地理环境 · 人口 · 物质生产方式（决定力量）',b:'社会意识',bSub:'社会生活的精神方面',ab:'决定',ba:'能动的反作用',baSub:'相对独立性：不完全同步 · 发展不平衡 · 历史继承性 · 相互影响',end:'先进的社会意识促进社会发展，落后的阻碍'},
+ yl:'==社会存在决定社会意识==，社会意识是社会存在的反映；社会意识具有==相对独立性==，对社会存在有==能动的反作用==（是其相对独立性的突出表现）。',
+ ff:'从==社会存在==出发说明社会意识；重视==先进文化、先进思想==的引领作用。',
+ err:'社会存在中起决定作用的是==物质生产方式==，不是地理环境或人口。社会意识与社会存在的变化==不完全同步==。',
+ ex:[['“仓廪实而知礼节”','社会存在决定社会意识'],['“一言兴邦，一言丧邦”','社会意识的反作用'],['“存在即被感知”','主观唯心主义（反例）']]},
+{ch:3,t:'生产力与生产关系',lv:3,a:{type:'duo',a:'生产力',aSub:'劳动者 · 劳动资料 · 劳动对象（最活跃最革命）',b:'生产关系',bSub:'所有制（基础）· 人们的地位和关系 · 分配',ab:'决定',ba:'反作用',end:'生产关系一定要适合生产力状况'},
+ yl:'==生产力决定生产关系==：生产力状况决定生产关系的性质，生产力的发展决定生产关系的变革。==生产关系反作用于生产力==：适合时促进，不适合时阻碍。',
+ ff:'必须==解放和发展生产力==；通过==改革==调整生产关系中不适应生产力的部分。',
+ err:'生产工具是生产力发展水平的==客观尺度==，是区分经济时代的主要标志；判断生产关系是否先进，看它==是否适合生产力==，不是越“公”越好。',
+ ex:[['“手推磨产生的是封建主的社会，蒸汽磨产生的是工业资本家的社会”','生产力决定生产关系'],['家庭联产承包责任制','调整生产关系适应生产力']]},
+{ch:3,t:'经济基础与上层建筑',lv:3,a:{type:'layers',layers:[{n:'生产力',sub:'最终决定力量',c:'jade'},{n:'经济基础',sub:'占统治地位的生产关系的总和',c:'gold'},{n:'上层建筑',sub:'政治上层建筑（国家政权是核心）+ 观念上层建筑',c:'blue'}],up:'决定',down:'反作用',end:'上层建筑一定要适合经济基础状况'},
+ yl:'==经济基础决定上层建筑==的产生、性质和变化发展；==上层建筑反作用于经济基础==，为自己的经济基础服务。',
+ ff:'推进==政治体制改革、文化体制改革==等，使上层建筑适应经济基础的要求。',
+ err:'上层建筑的反作用是促进还是阻碍，取决于它所服务的==经济基础的性质==，归根到底取决于是否有利于生产力发展。',
+ ex:[['全面深化改革','调整上层建筑适应经济基础']]},
+{ch:3,t:'社会形态更替',lv:2,a:{type:'stairs',steps:['原始社会','奴隶社会','封建社会','资本主义社会','共产主义社会'],end:'统一性与多样性 · 必然性与选择性 · 前进性与曲折性'},
+ yl:'社会形态是==经济基础与上层建筑的统一体==。社会形态更替具有==统一性和多样性==、==必然性和人们的历史选择性==、==前进性和曲折性==。',
+ ff:'走什么道路是==历史的选择、人民的选择==；选择以规律为基础，不是随心所欲。',
+ err:'个别国家可以==跨越==某一社会形态，这是多样性的表现，不否定五种形态依次更替的总趋势。',
+ ex:[['中国跨越资本主义“卡夫丁峡谷”','社会形态更替的多样性与选择性']]},
+{ch:3,t:'社会发展的动力系统',lv:3,a:{type:'web',center:'社会发展',nodes:[{n:'社会基本矛盾',sub:'根本动力'},{n:'阶级斗争',sub:'阶级社会的直接动力'},{n:'社会革命',sub:'重要动力 ·“历史的火车头”'},{n:'改革',sub:'重要动力 · 自我完善'},{n:'科学技术',sub:'重要动力 ·“历史的有力杠杆”'},{n:'文化',sub:'重要力量'}],end:'根本动力只有一个：社会基本矛盾'},
+ yl:'==社会基本矛盾==（生产力与生产关系、经济基础与上层建筑的矛盾）是社会发展的==根本动力==。==阶级斗争==是阶级社会发展的==直接动力==；==革命==和==改革==是重要动力；==科学技术==是重要动力。',
+ ff:'改革是社会主义制度的==自我完善和发展==，是发展中国的关键一招。',
+ err:'“根本动力”“直接动力”“重要动力”分别对应哪个，是选择题的常考点。阶级斗争只是==阶级社会==的直接动力。',
+ ex:[['“革命是历史的火车头”','社会革命的作用'],['“科学是历史的有力杠杆”','科学技术的作用']]},
+{ch:3,t:'人民群众是历史的创造者',lv:3,a:{type:'web',center:'人民群众',nodes:[{n:'物质财富的创造者',sub:''},{n:'精神财富的创造者',sub:''},{n:'社会变革的决定力量',sub:''}],end:'群众观点 · 群众路线'},
+ yl:'==人民群众是历史的创造者==：是社会==物质财富==的创造者、==精神财富==的创造者、==社会变革==的决定力量。人民群众创造历史的活动受==社会历史条件==制约。',
+ ff:'坚持==群众观点==（相信群众、依靠群众、为了群众）和==群众路线==（一切为了群众，一切依靠群众，从群众中来，到群众中去）。',
+ err:'唯物史观不否认个人的作用，但杰出人物的作用也受==社会历史条件==制约，不能决定历史发展的基本趋势。',
+ ex:[['“水能载舟，亦能覆舟”','人民群众的决定作用'],['“江山就是人民，人民就是江山”','群众观点'],['“时势造英雄”','历史人物受时代制约']]},
+{ch:3,t:'人的本质',lv:2,a:{type:'web',center:'现实的人',nodes:[{n:'经济关系',sub:'生产关系起决定作用'},{n:'政治关系',sub:''},{n:'思想文化关系',sub:''},{n:'家庭、民族等关系',sub:''}],end:'人的本质是一切社会关系的总和'},
+ yl:'人的本质不是单个人所固有的抽象物，==在其现实性上，它是一切社会关系的总和==。人的本质属性是==社会属性==，是具体的、历史的。',
+ ff:'在==社会关系==中认识人；在奉献社会中实现人生价值。',err:'人的本质属性是==社会属性==而不是自然属性。',
+ ex:[['“人是政治的动物”','片面（只看一种关系）']]},
+/* ============ 政治经济学 ============ */
+{ch:4,t:'商品二因素与劳动二重性',lv:3,a:{type:'tree',root:'商品',kids:[{n:'使用价值',sub:'自然属性 · 物质承担者',kids:['具体劳动创造','人与自然的关系']},{n:'价值',sub:'社会属性 · 无差别人类劳动的凝结',kids:['抽象劳动创造','人与人的关系']}],end:'劳动二重性决定商品二因素（理解政治经济学的枢纽）'},
+ yl:'商品是用来交换的劳动产品，具有==使用价值和价值==两个因素，是二者的对立统一。==具体劳动==创造使用价值，==抽象劳动==形成价值。==劳动二重性学说==是理解马克思主义政治经济学的==枢纽==。',
+ ff:'做题先分清：问的是“有什么用”（使用价值/具体劳动），还是“值多少”（价值/抽象劳动）。',
+ err:'具体劳动和抽象劳动是==同一劳动的两个方面==，不是两次劳动。价值的==唯一源泉==是抽象劳动；使用价值的源泉不只是劳动（还有自然物质）。',
+ ex:[['“劳动是财富之父，土地是财富之母”','使用价值的源泉不只劳动'],['“酒香不怕巷子深”','使用价值是价值的物质承担者']]},
+{ch:4,t:'价值量与劳动生产率',lv:3,a:{type:'split',title:'1 小时劳动创造的价值总量 = 1',max:10,stages:[
+  {cap:'原来：1 小时生产 1 件，每件价值 1',parts:[{n:'第 1 件  价值 1',w:10,c:'gold'}]},
+  {cap:'劳动生产率提高 1 倍：1 小时生产 2 件',parts:[{n:'第 1 件  0.5',w:5,c:'gold'},{n:'第 2 件  0.5',w:5,c:'jade'}]},
+  {cap:'单位商品价值量减半，价值总量不变',parts:[{n:'0.5',w:5,c:'gold'},{n:'0.5',w:5,c:'jade'}]}],end:'单位价值量与社会劳动生产率成反比'},
+ yl:'商品的价值量由==社会必要劳动时间==决定。单位商品价值量与生产它的==社会劳动生产率成反比==；同一劳动在同一时间内创造的==价值总量不变==。',
+ ff:'计算题口诀：==社会==生产率变→单价变、总量不变；==个别==生产率变→单价不变、个别总量变。',
+ err:'个别企业提高劳动生产率：单位商品==社会价值不变==，个别价值降低，可获得==超额剩余价值==。',
+ ex:[['“物以稀为贵”','供求影响价格，不决定价值']]},
+{ch:4,t:'价值规律',lv:3,a:{type:'wave',base:'价值',line:'价格',hi:'供不应求 → 价格高于价值',lo:'供过于求 → 价格低于价值',end:'价格围绕价值上下波动，是价值规律的表现形式'},
+ yl:'价值规律：商品的价值量由==社会必要劳动时间==决定，商品交换以价值量为基础，实行==等价交换==。表现形式：==价格围绕价值上下波动==。作用：调节资源配置、刺激技术进步、促进优胜劣汰。',
+ ff:'发挥市场在资源配置中的==决定性作用==，同时更好发挥政府作用，克服市场的自发性、盲目性、滞后性。',
+ err:'价格波动==不违背==价值规律，恰恰是它的表现形式；从长期和总体看，价格总额与价值总额相等。',
+ ex:[['“谷贱伤农”','价格波动与供求'],['“洛阳纸贵”','供求影响价格']]},
+{ch:4,t:'货币的本质与职能',lv:2,a:{type:'web',center:'货币',nodes:[{n:'价值尺度',sub:'基本职能 · 观念上的货币'},{n:'流通手段',sub:'基本职能 · 现实的货币'},{n:'贮藏手段',sub:'足值的金银'},{n:'支付手段',sub:'赊销 · 工资 · 税款'},{n:'世界货币',sub:''}],end:'货币是固定充当一般等价物的商品'},
+ yl:'货币是固定充当==一般等价物==的特殊商品，是商品交换发展到一定阶段的产物。五种职能：==价值尺度、流通手段==（基本职能）、贮藏手段、支付手段、世界货币。',
+ ff:'区分“标价”（价值尺度）、“一手交钱一手交货”（流通手段）、“先货后款或单方面转移”（支付手段）。',
+ err:'货币的出现使商品内在的使用价值和价值的矛盾==外化==为商品和货币的对立，并没有消除矛盾。',
+ ex:[['“金银天然不是货币，但货币天然是金银”','货币的本质']]},
+{ch:4,t:'简单商品经济的基本矛盾',lv:2,a:{type:'duo',a:'私人劳动',aSub:'生产什么、怎么生产是私事',b:'社会劳动',bSub:'产品要满足社会需要',ab:'必须通过交换转化为',ba:'是否承认？卖不掉就白干',end:'私人劳动与社会劳动的矛盾决定商品经济的其他矛盾'},
+ yl:'==私人劳动和社会劳动的矛盾==是简单商品经济的==基本矛盾==，它决定着商品经济的本质及其发展过程，决定着商品生产者的命运。',
+ ff:'',err:'注意区分：资本主义的基本矛盾是==生产社会化与生产资料资本主义私人占有==之间的矛盾。',ex:[['“商品到货币是惊险的跳跃”','私人劳动转化为社会劳动']]},
+{ch:4,t:'货币转化为资本：劳动力成为商品',lv:3,a:{type:'chain',nodes:['货币 G','劳动力 + 生产资料','生产过程','更多的货币 G′'],labels:['购买','劳动力创造新价值','出售商品'],end:'劳动力成为商品是货币转化为资本的前提'},
+ yl:'资本总公式 ==G—W—G′==。价值增殖的秘密在于==劳动力成为商品==：劳动力的使用价值是==价值的源泉==，它能创造出比自身价值更大的价值。劳动力成为商品的条件：劳动者==有人身自由==、==一无所有==。',
+ ff:'',err:'剩余价值==不产生于流通领域，又离不开流通领域==；工资是劳动力的价值或价格，不是“劳动”的价格。',
+ ex:[['资本总公式的矛盾','等价交换与价值增殖的矛盾']]},
+{ch:4,t:'剩余价值的生产：绝对与相对',lv:3,a:{type:'split',title:'工作日',max:12,stages:[
+  {cap:'工作日 8 小时：必要劳动 4 + 剩余劳动 4，剩余价值率 100%',parts:[{n:'必要劳动 4h',w:4,c:'jade'},{n:'剩余劳动 4h',w:4,c:'red'}]},
+  {cap:'绝对剩余价值：必要劳动不变，延长工作日到 10 小时',parts:[{n:'必要劳动 4h',w:4,c:'jade'},{n:'剩余劳动 6h',w:6,c:'red'}]},
+  {cap:'相对剩余价值：工作日不变，必要劳动缩短到 2 小时',parts:[{n:'必要 2h',w:2,c:'jade'},{n:'剩余劳动 6h',w:6,c:'red'}]}],end:'两种方法，都是为了提高剩余价值率'},
+ yl:'==绝对剩余价值==：必要劳动时间不变，==延长工作日==。==相对剩余价值==：工作日长度不变，==缩短必要劳动时间==，是全社会劳动生产率提高的结果。个别企业先提高生产率获得==超额剩余价值==，各企业追逐超额剩余价值的结果是相对剩余价值。',
+ ff:'计算：剩余价值率 ==m′ = m / v = 剩余劳动时间 / 必要劳动时间==。',
+ err:'相对剩余价值是==全社会==劳动生产率提高的结果，不是单个资本家能直接实现的。',
+ ex:[['“996”','绝对剩余价值生产'],['机器替代人工','相对剩余价值生产的途径']]},
+{ch:4,t:'不变资本、可变资本与剩余价值率',lv:3,a:{type:'split',title:'商品价值 W = c + v + m',max:10,stages:[
+  {cap:'不变资本 c：生产资料，只转移价值，不增殖',parts:[{n:'c 不变资本',w:6,c:'blue'},{n:'',w:0,c:'jade'},{n:'',w:0,c:'red'}]},
+  {cap:'可变资本 v：购买劳动力，是剩余价值的唯一源泉',parts:[{n:'c 不变资本',w:6,c:'blue'},{n:'v',w:2,c:'jade'},{n:'',w:0,c:'red'}]},
+  {cap:'m：雇佣工人创造、被资本家无偿占有的超过劳动力价值的价值',parts:[{n:'c 不变资本',w:6,c:'blue'},{n:'v',w:2,c:'jade'},{n:'m',w:2,c:'red'}]}],end:'剩余价值率 m′ = m / v，反映剥削程度'},
+ yl:'根据在剩余价值生产中的作用，资本分为==不变资本 c==（生产资料，价值只转移）和==可变资本 v==（劳动力，价值增殖）。==剩余价值率 m′ = m/v==。这一划分揭示了==剩余价值的真正来源是可变资本==。',
+ ff:'计算：利润率 ==p′ = m / (c + v)==，总是小于剩余价值率，掩盖了剥削程度。',
+ err:'c/v 的划分依据是==在价值增殖中的作用==；固定资本/流动资本的划分依据是==价值周转方式==。原料属于不变资本，同时属于流动资本。',
+ ex:[]},
+{ch:4,t:'资本积累与资本有机构成',lv:2,a:{type:'split',title:'资本有机构成 c : v',max:10,stages:[
+  {cap:'起初 c : v = 4 : 1',parts:[{n:'c  8',w:8,c:'blue'},{n:'v 2',w:2,c:'jade'}]},
+  {cap:'资本积累、技术进步：有机构成提高到 9 : 1',parts:[{n:'c  9',w:9,c:'blue'},{n:'v 1',w:1,c:'jade'}]},
+  {cap:'可变资本相对减少 → 对劳动力的需求相对减少',parts:[{n:'c  9',w:9,c:'blue'},{n:'v',w:1,c:'red'}]}],end:'结果：相对过剩人口（失业），贫富两极分化'},
+ yl:'==资本积累==是剩余价值的资本化，源泉是剩余价值。随着积累，==资本有机构成（c:v）不断提高==，可变资本相对减少，形成==相对过剩人口==。资本积累的历史趋势是资本主义必然被社会主义取代。',
+ ff:'',err:'==资本积聚==靠自身积累（增大社会总资本）；==资本集中==靠兼并联合（不增大社会总资本）。相对过剩人口是相对于==资本的需要==而言过剩。',
+ ex:[['“机器吃人”','有机构成提高排挤工人']]},
+{ch:4,t:'资本循环',lv:2,a:{type:'cycle',nodes:['货币资本 G','生产资本 P','商品资本 W′'],edges:['购买阶段（流通）','生产阶段','销售阶段（流通）'],center:'三种职能形式\n空间并存\n时间继起',end:'产业资本连续循环的两个条件'},
+ yl:'产业资本循环依次经过==购买、生产、销售==三个阶段，相应采取==货币资本、生产资本、商品资本==三种职能形式。连续循环的条件：三种形式在==空间上并存==、在==时间上继起==。',
+ ff:'',err:'货币资本的职能是==为生产剩余价值准备条件==；生产资本的职能是==生产==剩余价值；商品资本的职能是==实现==剩余价值。',
+ ex:[['资金链断裂','循环中断']]},
+{ch:4,t:'资本周转：固定资本与流动资本',lv:1,a:{type:'tree',root:'生产资本',kids:[{n:'固定资本',sub:'价值分次转移',kids:['厂房','机器设备']},{n:'流动资本',sub:'价值一次转移',kids:['原料、燃料','劳动力（工资）']}],end:'划分依据：价值周转方式不同'},
+ yl:'影响资本周转速度的因素：==周转时间==（生产时间+流通时间）和==固定资本与流动资本的构成==。加快周转可以提高年剩余价值率和年剩余价值量。',
+ ff:'计算：年剩余价值率 ==M′ = m′ × n==（n 为可变资本年周转次数）。',err:'固定/流动资本只是==生产资本==的划分。',ex:[]},
+{ch:4,t:'利润、平均利润与生产价格',lv:2,a:{type:'chain',nodes:['剩余价值 m','利润 p','平均利润','生产价格'],labels:['看作全部预付资本的产物','部门之间竞争、资本转移','成本 + 平均利润'],end:'一步步掩盖了剩余价值的真正来源'},
+ yl:'剩余价值被看作全部预付资本的产物时转化为==利润==；部门之间的竞争使利润转化为==平均利润==；商品价值转化为==生产价格==（成本价格+平均利润）。此后价格围绕==生产价格==波动。',
+ ff:'',err:'平均利润的形成==没有否定价值规律==：全社会的利润总额等于剩余价值总额，生产价格总额等于价值总额。',
+ ex:[['“等量资本获得等量利润”','平均利润规律']]},
+{ch:4,t:'资本主义基本矛盾与经济危机',lv:3,a:{type:'cycle',nodes:['危机','萧条','复苏','高涨'],edges:['','','',''],center:'生产相对过剩',end:'根源：生产社会化与生产资料资本主义私人占有之间的矛盾'},
+ yl:'资本主义的==基本矛盾==是==生产社会化和生产资料资本主义私人占有==之间的矛盾。经济危机的本质特征是==生产相对过剩==，根源是基本矛盾，具有==周期性==（危机—萧条—复苏—高涨）。',
+ ff:'两个具体表现：生产无限扩大的趋势与劳动人民==有支付能力的需求相对缩小==的矛盾；个别企业有组织与整个社会生产==无政府状态==的矛盾。',
+ err:'是==相对过剩==（相对于有支付能力的需求），不是绝对过剩。危机周期性的物质基础是==固定资本更新==。',
+ ex:[['把牛奶倒进河里','生产相对过剩']]},
+{ch:4,t:'垄断资本主义的发展',lv:2,a:{type:'stairs',steps:['自由竞争资本主义','私人垄断资本主义','国家垄断资本主义','经济全球化'],end:'垄断没有消除竞争，而是使竞争更加复杂和激烈'},
+ yl:'生产集中和资本集中发展到一定阶段必然产生==垄断==。垄断==没有消除竞争==。==金融寡头==通过“参与制”实现经济统治。==国家垄断资本主义==是国家政权和垄断资本融合，没有改变资本主义的性质。',
+ ff:'垄断利润的来源归根到底是==无产阶级和其他劳动人民创造的剩余价值==；垄断价格没有否定价值规律。',
+ err:'国家垄断资本主义的出现是资本主义生产关系的==部分质变==，但==没有根本改变==垄断资本主义的性质。',
+ ex:[]},
+/* ============ 科学社会主义 ============ */
+{ch:5,t:'“两个必然”与“两个决不会”',lv:2,a:{type:'unity',a:'两个必然',b:'两个决不会',l2:'必然：资本主义必然灭亡，社会主义必然胜利',l3:'决不会：生产力全部发挥出来以前，旧形态决不会灭亡；新关系在物质条件成熟以前决不会出现',l4:'既讲客观必然趋势，又讲实现的长期性',end:'资本主义向社会主义过渡是长期的历史过程'},
+ yl:'==“两个必然”==：资产阶级的灭亡和无产阶级的胜利是同样不可避免的。==“两个决不会”==：无论哪一个社会形态，在它所能容纳的全部生产力发挥出来以前，是决不会灭亡的；新的更高的生产关系，在它的物质存在条件在旧社会的胎胞里成熟以前，是决不会出现的。',
+ ff:'既要==坚定理想信念==，又要认识到过渡的==长期性、复杂性==。',err:'二者不矛盾，是有机统一的整体。',ex:[]},
+{ch:5,t:'社会主义五百年',lv:1,a:{type:'stairs',steps:['空想社会主义','科学社会主义','从理论到实践','从一国到多国','中国特色社会主义'],end:'从空想到科学、从理论到实践、从一国到多国'},
+ yl:'社会主义从==空想到科学==（唯物史观和剩余价值学说两大发现）、从==理论到实践==（十月革命）、从==一国到多国==。经济文化相对落后的国家建设社会主义具有==长期性和艰巨性==。',
+ ff:'社会主义在实践中开拓前进，发展道路具有==多样性==。',err:'空想社会主义是科学社会主义的==直接思想来源==。',ex:[]},
+{ch:5,t:'远大理想与共同理想',lv:2,a:{type:'duo',a:'共产主义远大理想',aSub:'最高理想 · 最终目标',b:'中国特色社会主义共同理想',bSub:'现阶段的奋斗目标',ab:'为……指明方向',ba:'是实现……的必经阶段',end:'脚踏实地，做坚定的信仰者和忠实的实践者'},
+ yl:'共产主义远大理想与中国特色社会主义共同理想是==辩证统一==的：远大理想是共同理想的==奋斗目标和方向==，共同理想是远大理想的==必要准备和必经阶段==。',
+ ff:'既不能离开现实空谈理想，也不能因理想遥远而放弃追求。',err:'共产主义社会的基本特征：物质财富极大丰富、社会关系高度和谐、实现==每个人自由而全面的发展==。',ex:[['“千里之行，始于足下”','理想要落到实践']]},
+];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>esc(s).replace(/==(.+?)==/g,'<mark>$1</mark>');
+const plain=s=>s.replace(/==/g,'');
+const C={red:'var(--red)',gold:'var(--gold)',blue:'var(--blue)',jade:'var(--jade)'};
+const LV={3:'★★★ 必背',2:'★★ 重要',1:'★ 了解'};
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ld=k=>{try{return new Set(JSON.parse(localStorage.getItem(k)||'[]'))}catch(e){return new Set()}};
+const sv_=(k,s)=>{try{localStorage.setItem(k,JSON.stringify([...s]))}catch(e){}};
+const READ=ld('my.read'),WEAK=ld('my.weak');
+D.forEach((d,i)=>d.id=i);
+const st={cur:0,step:0,minLv:1,blank:false,play:false};
+try{st.minLv=+localStorage.getItem('my.lv')||1}catch(e){}
+
+/* ===== 动画模板：返回 {svg, caps[], onStep?} ，元素用 data-s=步号 控制出现 ===== */
+const tw=(s,fs)=>[...String(s)].reduce((a,c)=>a+(c.charCodeAt(0)>255?fs:fs*.56),0);
+const fit=(s,w,max)=>Math.max(11,Math.min(max,Math.floor(w/Math.max(1,tw(s,1)))));
+function box(x,y,w,h,t,sub,c,s,cls='pop'){const f=fit(t,w-24,24),f2=sub?fit(sub,w-16,13):0;
+  return `<g data-s="${s}" class="${cls}"><rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}" rx="12" stroke="${c}"/><rect x="${x}" y="${y}" width="${w}" height="5" rx="2.5" fill="${c}"/>
+  <text class="t1" x="${x+w/2}" y="${y+h/2-(sub?10:0)}" font-size="${f}">${esc(t)}</text>${sub?`<text class="t2" x="${x+w/2}" y="${y+h/2+18}" font-size="${f2}">${esc(sub)}</text>`:''}</g>`}
+function arrow(d,c,s,id){return `<path id="${id}" data-s="${s}" class="draw" d="${d}" pathLength="1" fill="none" stroke="${c}" stroke-width="3.2" stroke-linecap="round" marker-end="url(#ah)" style="color:${c}"/>
+  <circle data-s="${s}" r="5" fill="${c}"><animateMotion dur="2.4s" repeatCount="indefinite" rotate="auto"><mpath href="#${id}"/></animateMotion></circle>`}
+function label(x,y,t,c,s,fs=17){return `<text data-s="${s}" class="lb rise" x="${x}" y="${y}" font-size="${fs}" fill="${c}">${esc(t)}</text>`}
+function note(x,y,t,s,fs=13){return `<text data-s="${s}" class="t2 rise" x="${x}" y="${y}" font-size="${Math.min(fs,fit(t,760,fs))}">${esc(t)}</text>`}
+function ending(t,s){return `<g data-s="${s}" class="pop"><rect x="${400-tw(t,fit(t,720,21))/2-22}" y="378" width="${tw(t,fit(t,720,21))+44}" height="40" rx="20" fill="rgba(224,168,78,.1)" stroke="var(--gold)"/><text class="end" x="400" y="398" font-size="${fit(t,720,21)}">${esc(t)}</text></g>`}
+const DEFS=`<defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="context-stroke"/></marker></defs>`;
+const T={
+duo(o){return{svg:
+  box(70,130,250,120,o.a,o.aSub,C.gold,1)+box(480,130,250,120,o.b,o.bSub,C.blue,1)+
+  arrow('M300,128 C350,60 450,60 500,128',C.gold,2,'p1')+label(400,50,o.ab,C.gold,2,19)+(o.abSub?note(400,106,o.abSub,2):'')+
+  arrow('M500,252 C450,320 350,320 300,252',C.blue,3,'p2')+label(400,330,o.ba,C.blue,3,19)+(o.baSub?note(400,276,o.baSub,3):'')+
+  ending(o.end,4),
+  caps:[`先认清两端：${o.a} 和 ${o.b}`,`${o.a} ${o.ab} ${o.b}${o.abSub?'：'+o.abSub:''}`,`${o.b} 对 ${o.a}：${o.ba}${o.baSub?'（'+o.baSub+'）':''}`,o.end]}},
+unity(o){const fa=fit(o.a,150,24),fb=fit(o.b,150,24);return{svg:
+  `<g id="uh"><g id="uL" data-s="1" style="transition:transform .7s,opacity .5s"><path d="M400,90 A120,120 0 0 0 400,330 Z" fill="rgba(222,90,67,.22)" stroke="var(--red)" stroke-width="2"/><text class="t1" x="330" y="210" font-size="${fa}">${esc(o.a)}</text></g>
+   <g id="uR" data-s="1" style="transition:transform .7s,opacity .5s"><path d="M400,90 A120,120 0 0 1 400,330 Z" fill="rgba(121,172,217,.22)" stroke="var(--blue)" stroke-width="2"/><text class="t1" x="470" y="210" font-size="${fb}">${esc(o.b)}</text></g></g>
+  <g data-s="2" id="uA2"><path d="M250,210 H190" stroke="var(--red)" stroke-width="3" marker-end="url(#ah)" style="color:var(--red)"/><path d="M550,210 H610" stroke="var(--blue)" stroke-width="3" marker-end="url(#ah)" style="color:var(--blue)"/></g>
+  <circle data-s="3" class="glow" cx="400" cy="210" r="134" fill="none" stroke="var(--gold)" stroke-width="3" stroke-dasharray="6 7"/>
+  ${arrow('M330,80 C370,40 430,40 470,80',C.gold,4,'p1')}${arrow('M470,340 C430,378 370,378 330,340',C.gold,4,'p2')}`+ending(o.end,5),
+  caps:[`${o.a} 与 ${o.b}：一个统一体的两个方面`,o.l2,o.l3,o.l4,o.end],
+  onStep(i,sv){const ap=i===1?26:0;sv.querySelector('#uL').style.transform=`translateX(${-ap}px)`;sv.querySelector('#uR').style.transform=`translateX(${ap}px)`;sv.querySelector('#uA2').style.opacity=i===1?1:0}}},
+quant(o){return{svg:
+  `<text data-s="1" class="t2" x="120" y="150" font-size="14" style="text-anchor:start">${esc(o.unit)} →</text>
+  <rect data-s="1" x="120" y="165" width="560" height="44" rx="8" fill="var(--panel)" stroke="var(--line2)" stroke-width="1.5"/>
+  <rect id="qf" x="120" y="165" width="0" height="44" rx="8" fill="var(--jade)" opacity=".85"/>
+  <g data-s="2"><path d="M120,228 V240 H680 V228" fill="none" stroke="var(--gold)" stroke-width="1.5"/><text class="lb" x="400" y="256" font-size="15" fill="var(--gold)">度：保持质的稳定的数量界限</text></g>
+  <g data-s="3"><line x1="680" y1="145" x2="680" y2="228" stroke="var(--red)" stroke-width="3"/><text class="lb" x="680" y="128" font-size="15" fill="var(--red)">关节点</text></g>
+  ${box(120,60,160,56,o.from,'',C.jade,1)}
+  <g id="qn" data-s="3" class="pop">${box(520,60,160,56,o.to,'',C.red,3,'')}</g>
+  ${arrow('M290,88 H505',C.red,3,'p1')}${label(400,72,'质变（飞跃）',C.red,3,16)}
+  <g data-s="4" class="rise"><rect x="120" y="290" width="560" height="30" rx="6" fill="var(--panel)" stroke="var(--line2)"/><rect id="qf2" x="120" y="290" width="0" height="30" rx="6" fill="var(--red)" opacity=".75"/><text class="t2" x="400" y="340" font-size="14">在新质的基础上，开始新的量变</text></g>`+ending(o.end,5),
+  caps:['量变：数量的增减、次序的变动，是渐进的、不显著的','在“度”的范围内，量变不改变事物的质','量变积累到关节点，突破度 → 质变（根本性的飞跃）','质变又为新的量变开辟道路',o.end],
+  onStep(i,sv){tween(sv.querySelector('#qf'),'width',[150,540,560,560,560][i],900);tween(sv.querySelector('#qf2'),'width',i>=3?170:0,1100)}}},
+spiral(o){const n=o.nodes.length,pts=o.nodes.map((_,i)=>[150+i*(500/(n-1)),320-i*(230/(n-1))]);let s='';
+  pts.forEach((p,i)=>{if(i){const a=pts[i-1],mx=(a[0]+p[0])/2;s+=arrow(`M${a[0]+40},${a[1]-18} C${mx+70},${a[1]-10} ${mx+90},${p[1]+70} ${mx},${p[1]+62} C${mx-80},${p[1]+56} ${mx-60},${p[1]+4} ${p[0]-52},${p[1]+6}`,i%2?C.red:C.gold,i+1,'p'+i)}
+    s+=`<g data-s="${i+1}" class="pop"><circle cx="${p[0]}" cy="${p[1]}" r="46" class="bx" stroke="${i===n-1?'var(--gold)':i%2?'var(--red)':'var(--jade)'}"/><text class="t1" x="${p[0]}" y="${p[1]}" font-size="${fit(o.nodes[i],68,19)}">${esc(o.nodes[i])}</text></g>`});
+  s+=`<g data-s="${n}" class="rise"><path d="M690,330 V90" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 5" marker-end="url(#ah)" style="color:var(--muted)"/><text class="t2" x="716" y="210" font-size="13" transform="rotate(90 716 210)">更高阶段</text></g>`;
+  return{svg:s+ending(o.end,n+1),caps:[...o.nodes.map((x,i)=>i===0?`起点：${x}`:i===n-1?`${x}：仿佛回到出发点，其实是在更高阶段上`:`经过曲折，走向 ${x}`),o.end]}},
+web(o){const n=o.nodes.length,cx=400,cy=195;let s=`<g data-s="1" class="pop"><circle cx="${cx}" cy="${cy}" r="58" fill="rgba(224,168,78,.14)" stroke="var(--gold)" stroke-width="2.5"/><text class="t1" x="${cx}" y="${cy}" font-size="${fit(o.center,96,24)}">${esc(o.center)}</text></g>`;
+  o.nodes.forEach((d,i)=>{const a=-Math.PI/2+i*2*Math.PI/n+(n%2?0:Math.PI/n),x=cx+Math.cos(a)*275,y=cy+Math.sin(a)*138,w=190,h=d.sub?62:48;
+    s+=`<path data-s="3" class="draw" pathLength="1" d="M${cx+Math.cos(a)*62},${cy+Math.sin(a)*62} L${x-Math.cos(a)*60},${y-Math.sin(a)*30}" stroke="var(--gold)" stroke-width="2" style="transition-delay:${i*.12}s"/>`;
+    s+=`<g data-s="2" class="pop" style="transition-delay:${i*.14}s"><rect class="bx" x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="10" stroke="var(--blue)"/><text class="t1" x="${x}" y="${y-(d.sub?10:0)}" font-size="${fit(d.n,w-20,18)}">${esc(d.n)}</text>${d.sub?`<text class="t2" x="${x}" y="${y+14}" font-size="${fit(d.sub,w-14,12.5)}">${esc(d.sub)}</text>`:''}</g>`});
+  return{svg:s+ending(o.end,4),caps:[`核心：${o.center}`,o.nodes.map(d=>d.n).join('、'),`每一项都和“${o.center}”连起来记`,o.end]}},
+cycle(o){const n=o.nodes.length,cx=400,cy=200,R=140;let s='';const ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  o.nodes.forEach((t,i)=>{const a=ang(i),x=cx+Math.cos(a)*R*1.75,y=cy+Math.sin(a)*R,w=Math.max(120,tw(t,17)+30);
+    const a2=ang(i+1),x2=cx+Math.cos(a2)*R*1.75,y2=cy+Math.sin(a2)*R,mx=(x+x2)/2,my=(y+y2)/2,ox=(mx-cx)*.34,oy=(my-cy)*.34;
+    const sx=x+(x2-x)*.2,sy=y+(y2-y)*.2,ex=x+(x2-x)*.8,ey=y+(y2-y)*.8;
+    s+=arrow(`M${sx},${sy} Q${mx+ox},${my+oy} ${ex},${ey}`,C.gold,Math.min(i+2,n+1),'p'+i);
+    if(o.edges&&o.edges[i])s+=label(mx+ox*1.5,my+oy*1.5,o.edges[i],C.red,Math.min(i+2,n+1),14);
+    s+=`<g data-s="${i+1}" class="pop"><rect class="bx" x="${x-w/2}" y="${y-24}" width="${w}" height="48" rx="24" stroke="var(--blue)"/><text class="t1" x="${x}" y="${y}" font-size="17">${esc(t)}</text></g>`});
+  const cl=(o.center||'').split('\n');s+=`<g data-s="${n+1}" class="pop">${cl.map((l,i)=>`<text class="end" x="${cx}" y="${cy+(i-(cl.length-1)/2)*26}" font-size="19">${esc(l)}</text>`).join('')}</g>`;
+  return{svg:s+ending(o.end,n+2),caps:[...o.nodes.map((t,i)=>i===0?`从 ${t} 出发`:`${o.nodes[i-1]} → ${t}${o.edges&&o.edges[i-1]?'：'+o.edges[i-1]:''}`),`${o.nodes[n-1]} → ${o.nodes[0]}${o.edges&&o.edges[n-1]?'：'+o.edges[n-1]:''}，${(o.center||'').replace(/\n/g,'')}`,o.end]}},
+split(o){const X=100,Wd=600,u=Wd/o.max,m=Math.max(...o.stages.map(s=>s.parts.length));let s=`<text data-s="1" class="t1" x="400" y="96" font-size="20">${esc(o.title)}</text><rect data-s="1" x="${X}" y="150" width="${Wd}" height="90" rx="10" fill="none" stroke="var(--line2)" stroke-dasharray="4 5"/>`;
+  for(let i=0;i<m;i++)s+=`<rect id="sp${i}" x="${X}" y="150" width="0" height="90" rx="8" opacity=".9"/><text id="sl${i}" class="t1" x="${X}" y="195" font-size="17"></text>`;
+  for(let k=0;k<=o.max;k++)s+=`<line data-s="1" x1="${X+k*u}" y1="246" x2="${X+k*u}" y2="${k%2?252:256}" stroke="var(--muted)"/>`;
+  s+=`<text id="stot" class="t2" x="400" y="286" font-size="15"></text>`;
+  const n=o.stages.length;return{svg:s+ending(o.end,n+1),caps:[...o.stages.map(x=>x.cap),o.end],
+   onStep(i,sv){const stg=o.stages[Math.min(i,n-1)];let x=X;for(let k=0;k<m;k++){const p=stg.parts[k]||{n:'',w:0,c:'gold'},r=sv.querySelector('#sp'+k),l=sv.querySelector('#sl'+k);
+     r.setAttribute('fill',C[p.c]||p.c);tween(r,'x',x,700);tween(r,'width',Math.max(0,p.w*u-3),700);tween(l,'x',x+p.w*u/2,700);l.textContent=p.w?p.n:'';l.setAttribute('font-size',fit(p.n||' ',p.w*u-10,17));l.setAttribute('fill','#0e1013');x+=p.w*u}
+     const tot=stg.parts.reduce((a,p)=>a+p.w,0);sv.querySelector('#stot').textContent=o.title.includes('工作日')?`工作日共 ${tot} 小时 · 剩余价值率 m′ = ${stg.parts[1].w}/${stg.parts[0].w} = ${Math.round(stg.parts[1].w/stg.parts[0].w*100)}%`:''}}},
+wave(o){let d='M70,210';for(let x=70;x<=730;x+=6)d+=` L${x},${(210-Math.sin((x-70)/660*Math.PI*4)*72).toFixed(1)}`;
+  return{svg:`<g data-s="1"><line x1="60" y1="210" x2="740" y2="210" stroke="var(--jade)" stroke-width="2.5"/><text class="lb" x="752" y="210" font-size="17" fill="var(--jade)" style="text-anchor:start">${esc(o.base)}</text></g>
+  <path id="p1" data-s="2" class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--gold)" stroke-width="3.2" style="transition-duration:2.2s"/><circle data-s="2" r="6" fill="var(--gold)"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion></circle>
+  ${label(690,120,o.line,C.gold,2,17)}
+  <g data-s="3" class="rise"><line x1="152" y1="138" x2="152" y2="210" stroke="var(--red)" stroke-dasharray="3 4"/><text class="lb" x="200" y="112" font-size="15" fill="var(--red)">${esc(o.hi)}</text></g>
+  <g data-s="4" class="rise"><line x1="318" y1="210" x2="318" y2="282" stroke="var(--blue)" stroke-dasharray="3 4"/><text class="lb" x="330" y="308" font-size="15" fill="var(--blue)">${esc(o.lo)}</text></g>`+ending(o.end,5),
+  caps:[`${o.base}是一条“轴线”：由社会必要劳动时间决定`,`${o.line}受供求影响，围绕${o.base}上下波动`,o.hi+'，于是生产扩大',o.lo+'，于是生产缩小',o.end]}},
+layers(o){const n=o.layers.length,h=78,y0=318;let s='';
+  o.layers.forEach((l,i)=>{s+=box(220,y0-(i+1)*h-i*10,360,h,l.n,l.sub,C[l.c],i+1,'rise')});
+  s+=arrow(`M196,${y0-20} V${y0-n*h-(n-1)*10+20}`,C.gold,n+1,'p1')+label(150,y0-n*h/2-10,o.up,C.gold,n+1,19)+arrow(`M604,${y0-n*h-(n-1)*10+20} V${y0-20}`,C.blue,n+2,'p2')+label(656,y0-n*h/2-10,o.down,C.blue,n+2,19);
+  return{svg:s+ending(o.end,n+3),caps:[...o.layers.map((l,i)=>i===0?`地基：${l.n}（${l.sub}）`:`往上一层：${l.n}（${l.sub}）`),`自下而上：下层${o.up}上层`,`自上而下：上层对下层有${o.down}`,o.end]}},
+tree(o){const k=o.kids.length,w=Math.min(300,680/k-20);let s=box(400-150,22,300,58,o.root,'',C.gold,1);
+  o.kids.forEach((d,i)=>{const cx=400+(i-(k-1)/2)*(680/k),g=d.kids||[],gw=Math.min(150,(680/k-16)/Math.max(1,g.length)-8);
+    s+=`<path data-s="2" class="draw" pathLength="1" d="M400,80 C400,115 ${cx},105 ${cx},140" fill="none" stroke="var(--gold)" stroke-width="2"/>`+box(cx-w/2,140,w,72,d.n,d.sub,C.blue,2);
+    g.forEach((t,j)=>{const gx=cx+(j-(g.length-1)/2)*(gw+10);s+=`<path data-s="3" class="draw" pathLength="1" d="M${cx},212 C${cx},240 ${gx},235 ${gx},262" fill="none" stroke="var(--blue)" stroke-width="1.6"/>`+
+      `<g data-s="3" class="pop" style="transition-delay:${(i*g.length+j)*.1}s"><rect class="bx" x="${gx-gw/2}" y="262" width="${gw}" height="72" rx="10" stroke="var(--jade)"/>${wrap(t,gw-12).map((l,q,arr)=>`<text class="t1" x="${gx}" y="${298+(q-(arr.length-1)/2)*20}" font-size="14">${esc(l)}</text>`).join('')}</g>`})});
+  return{svg:s+ending(o.end,4),caps:[`从“${o.root}”出发`,o.kids.map(d=>d.n+(d.sub?'（'+d.sub+'）':'')).join('；'),'再往下分一层，左右对照着记',o.end]}},
+chain(o){const n=o.nodes.length,w=Math.min(170,(720-(n-1)*46)/n),gap=(720-n*w)/(n-1);let s='';
+  o.nodes.forEach((t,i)=>{const x=40+i*(w+gap);s+=box(x,160,w,84,t,'',i===n-1?C.gold:C.blue,i+1);
+    if(i){s+=arrow(`M${x-gap+4},202 H${x-8}`,C.gold,i+1,'p'+i);if(o.labels&&o.labels[i-1]){const L=wrap(o.labels[i-1],gap+w*.7);s+=L.map((l,q)=>`<text data-s="${i+1}" class="lb rise" x="${x-gap/2}" y="${132-(L.length-1-q)*18}" font-size="13" fill="var(--red)">${esc(l)}</text>`).join('')}}});
+  return{svg:s+ending(o.end,n+1),caps:[...o.nodes.map((t,i)=>i===0?`起点：${t}`:`${o.nodes[i-1]} → ${t}${o.labels&&o.labels[i-1]?'（'+o.labels[i-1]+'）':''}`),o.end]}},
+stairs(o){const n=o.steps.length,w=660/n,h=230/n;let s='';
+  o.steps.forEach((t,i)=>{const x=70+i*w,y=330-(i+1)*h;s+=`<g data-s="${i+1}" class="rise"><rect x="${x}" y="${y}" width="${w-6}" height="${(i+1)*h}" rx="6" fill="${i===n-1?'rgba(224,168,78,.2)':'var(--panel)'}" stroke="${i===n-1?'var(--gold)':'var(--blue)'}" stroke-width="1.6"/>${wrap(t,w-16).map((l,q,arr)=>`<text class="t1" x="${x+w/2-3}" y="${y+24+q*19}" font-size="${Math.min(16,fit(l,w-14,16))}">${esc(l)}</text>`).join('')}</g>`;
+    if(i)s+=`<path data-s="${i+1}" class="draw" pathLength="1" d="M${x-w/2},${y+h-14} Q${x-8},${y+h-40} ${x+w/2-8},${y-12}" fill="none" stroke="var(--gold)" stroke-width="2.4" marker-end="url(#ah)" style="color:var(--gold)"/>`});
+  return{svg:s+ending(o.end,n+1),caps:[...o.steps.map((t,i)=>i===0?`第一级：${t}`:`再上一级：${t}`),o.end]}},
+};
+function wrap(t,w,fs=14){const out=[];let cur='';for(const ch of t){if(tw(cur+ch,fs)>w&&cur){out.push(cur);cur=ch}else cur+=ch}if(cur)out.push(cur);return out.slice(0,3)}
+const tweens=new WeakMap();
+function tween(el,attr,to,dur){if(!el)return;const from=parseFloat(el.getAttribute(attr))||0;if(RM||Math.abs(from-to)<.5){el.setAttribute(attr,to);return}
+  const key=attr,tok=Symbol();let m=tweens.get(el);if(!m){m={};tweens.set(el,m)}m[key]=tok;const t0=performance.now();
+  (function f(now){if(m[key]!==tok)return;const k=Math.min(1,(now-t0)/dur),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;el.setAttribute(attr,from+(to-from)*e);k<1&&requestAnimationFrame(f)})(t0)}
+
+/* ===== 播放器 ===== */
+const sv=$('#sv');let scene=null,timer=null;
+function visible(d){return d.lv>=st.minLv}
+function load(id,opt={}){st.cur=id;const d=D[id];scene=T[d.a.type](d.a);sv.innerHTML=DEFS+scene.svg;
+  $('#chn').textContent=CH[d.ch];$('#ttl').textContent=d.t;const lt=$('#lvt');lt.textContent=LV[d.lv];lt.className='lvtag l'+d.lv;
+  $('#dots').innerHTML='<i></i>'.repeat(scene.caps.length);card(true);paintNav();
+  try{localStorage.setItem('my.cur',d.t)}catch(e){}
+  setStep(0);clearTimeout(timer);if(opt.auto!==false)autoStep()}
+function setStep(i){const n=scene.caps.length;st.step=Math.max(0,Math.min(n-1,i));
+  sv.querySelectorAll('[data-s]').forEach(el=>el.classList.toggle('on',+el.dataset.s<=st.step+1));
+  scene.onStep&&scene.onStep(st.step,sv);
+  $('#cap').innerHTML=`<b>${st.step+1}/${n}</b><span>${esc(scene.caps[st.step])}</span>`;
+  [...$('#dots').children].forEach((x,j)=>x.classList.toggle('on',j<=st.step));
+  $('#cNext').textContent=st.step>=n-1?'下一个原理 ▶':'下一步 ▶'}
+function autoStep(){clearTimeout(timer);const n=scene.caps.length;
+  timer=setTimeout(function f(){if(st.step<n-1){setStep(st.step+1);timer=setTimeout(f,st.step>=n-1?(st.play?3200:0):2300)}else if(st.play){go(1)}},RM?600:2300)}
+function next(){clearTimeout(timer);if(st.step<scene.caps.length-1)setStep(st.step+1);else go(1)}
+function prev(){clearTimeout(timer);setStep(st.step-1)}
+function go(d){const vis=D.filter(visible),k=vis.findIndex(x=>x.id===st.cur),n=vis[k+d];if(n)load(n.id);else if(d>0)setPlay(false)}
+$('#wrap').onclick=()=>{setPlay(false);next()};$('#cNext').onclick=()=>{setPlay(false);next()};$('#cPrev').onclick=()=>{setPlay(false);prev()};$('#cRe').onclick=()=>{setStep(0);autoStep()};
+
+/* ===== 目录 ===== */
+function buildNav(){const nav=$('#nav');let h='';CH.forEach((c,ci)=>{const L=D.filter(d=>d.ch===ci&&visible(d));if(!L.length)return;h+=`<h4>${c}<span>${L.length}</span></h4>`+L.map(d=>`<button class="ni lv${d.lv}" data-id="${d.id}"><span class="st">${d.lv===3?'★':''}</span><span>${esc(d.t)}</span><span class="rd"></span></button>`).join('')});nav.innerHTML=h}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('.ni');if(b){setPlay(false);load(+b.dataset.id)}});
+function paintNav(){document.querySelectorAll('.ni').forEach(b=>{const d=D[+b.dataset.id];b.classList.toggle('on',d.id===st.cur);b.querySelector('.rd').textContent=READ.has(d.t)?'✓':'';if(d.id===st.cur)b.scrollIntoView({block:'nearest',inline:'center'})});
+  const vis=D.filter(visible),k=vis.findIndex(x=>x.id===st.cur),p=vis[k-1],n=vis[k+1],bp=$('#bPrev'),bn=$('#bNext');bp.disabled=!p;bn.disabled=!n;bp.querySelector('span').textContent=p?p.t:'—';bn.querySelector('span').textContent=n?n.t:'—';
+  bp.onclick=()=>{setPlay(false);p&&load(p.id)};bn.onclick=()=>{setPlay(false);n&&load(n.id)};
+  $('#nRead').textContent=READ.size;$('#nAll').textContent=D.length}
+
+/* ===== 原理卡 ===== */
+function card(anim){const d=D[st.cur];
+  let h=`<div class="acts"><button id="aRead" aria-pressed="${READ.has(d.t)}">${READ.has(d.t)?'✓ 已掌握':'标记已掌握'}</button><button id="aRe">▶ 重播动画</button></div>
+  <div class="sec"><h3>原 理</h3><p>${fmt(d.yl)}</p></div>`;
+  if(d.ff)h+=`<div class="sec"><h3 class="j">方法论 / 解题</h3><p>${fmt(d.ff)}</p></div>`;
+  if(d.err)h+=`<div class="sec"><h3 class="r">易 错</h3><div class="errbox">${fmt(d.err)}</div></div>`;
+  if(d.ex&&d.ex.length)h+=`<div class="sec"><h3 class="b">成语 · 名句 · 实例</h3><div class="exs">${d.ex.map(x=>`<div class="ex"><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join('')}</div></div>`;
+  h+=`<div class="sec"><h3>大题怎么写</h3><div class="tmpl"><b>① 原理</b>：写出“${esc(d.t)}”的原理内容（上面金色关键词是采分点）<br><b>② 方法论</b>：这要求我们……<br><b>③ 结合材料</b>：材料中……体现了 / 正是坚持了这一原理</div></div>`;
+  const c=$('#card');c.classList.remove('anim');c.innerHTML=h;c.classList.toggle('blank',st.blank);c.scrollTop=0;if(anim&&!RM){void c.offsetWidth;c.classList.add('anim')}
+  $('#aRead').onclick=()=>{READ.has(d.t)?READ.delete(d.t):READ.add(d.t);sv_('my.read',READ);card(false);paintNav()};
+  $('#aRe').onclick=()=>{setStep(0);autoStep()}}
+$('#card').addEventListener('click',e=>{if(!st.blank)return;const m=e.target.closest('mark,.ex span');if(m)m.classList.toggle('show')});
+
+/* ===== 工具 ===== */
+const LVB={1:'全部原理',2:'★★ 重要以上',3:'★★★ 只看必背'};
+function paintLv(){$('#tLv').textContent=LVB[st.minLv];$('#tLv').dataset.lv=st.minLv}
+$('#tLv').onclick=()=>{st.minLv=st.minLv%3+1;try{localStorage.setItem('my.lv',st.minLv)}catch(e){}paintLv();buildNav();if(!visible(D[st.cur])){const v=D.filter(visible);load((v.find(x=>x.id>st.cur)||v[0]).id)}else paintNav()};
+function setBlank(v){st.blank=v;$('#tBlank').setAttribute('aria-pressed',v);$('#card').classList.toggle('blank',v);document.querySelectorAll('.show').forEach(m=>m.classList.remove('show'))}
+$('#tBlank').onclick=()=>setBlank(!st.blank);
+function setPlay(v){st.play=v;$('#tPlay').setAttribute('aria-pressed',v);if(v)autoStep()}
+$('#tPlay').onclick=()=>setPlay(!st.play);
+const q=$('#q'),res=$('#res');
+q.addEventListener('input',()=>{const s=q.value.trim();if(!s){res.hidden=true;return}const hits=D.filter(d=>(d.t+plain(d.yl)+plain(d.ff||'')+(d.ex||[]).map(x=>x.join('')).join('')).includes(s)).slice(0,12);
+  res.innerHTML=hits.length?hits.map(d=>`<button data-id="${d.id}"><small>${CH[d.ch]}</small>${esc(d.t)}</button>`).join(''):'<div style="padding:10px;color:var(--muted)">没有找到，换个词试试</div>';res.hidden=false});
+res.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-id]');if(b){e.preventDefault();if(quiz.on)quitQuiz();if(!visible(D[+b.dataset.id])){st.minLv=1;paintLv();buildNav()}load(+b.dataset.id);res.hidden=true;q.value='';q.blur()}});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.search'))res.hidden=true});
+addEventListener('keydown',e=>{if(e.target.matches('input'))return;
+  if(quiz.on){if(e.key==='Escape')quitQuiz();else if(/^[1-4]$/.test(e.key)){const b=document.querySelectorAll('.qz .opt')[+e.key-1];b&&b.click()}else if(e.key==='Enter'){const b=document.querySelector('.qz .btn.pri');b&&b.click()}return}
+  if(e.key==='ArrowRight'){e.preventDefault();setPlay(false);next()}else if(e.key==='ArrowLeft'){e.preventDefault();setPlay(false);prev()}
+  else if(e.key==='ArrowDown'){e.preventDefault();setPlay(false);go(1)}else if(e.key==='ArrowUp'){e.preventDefault();setPlay(false);go(-1)}
+  else if(e.key===' '){e.preventDefault();setPlay(!st.play)}else if(e.key==='b'||e.key==='B')setBlank(!st.blank)});
+
+/* ===== 闯关 ===== */
+const quiz={on:false,qs:[],i:0,score:0,wrong:[],done:false};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function others(d,n=3){return shuffle(D.filter(x=>x.id!==d.id&&x.ch===d.ch)).concat(shuffle(D.filter(x=>x.id!==d.id&&x.ch!==d.ch))).slice(0,n)}
+function makeQs(pool){const qs=[];const exs=shuffle(pool.flatMap(d=>(d.ex||[]).map(x=>({d,x}))));const ps=shuffle(pool);let a=0,b=0;
+  ['ex','ex','ff','ex','kw','ex','ff','ex','kw','ex'].forEach(ty=>{
+    if(ty==='ex'&&exs[a]){const {d,x}=exs[a++];qs.push({ty,d,clue:x[0],q:'这句话 / 这个例子，考的是哪个原理？',opts:shuffle([d,...others(d)])})}
+    else{const d=ps[b++%ps.length];if(ty==='ff'&&d.ff)qs.push({ty,d,clue:plain(d.ff),q:'下面的方法论，对应哪个原理？',opts:shuffle([d,...others(d)])});
+      else{const ks=[...d.yl.matchAll(/==(.+?)==/g)].map(m=>m[1]);if(ks.length){const k=ks[Math.floor(Math.random()*ks.length)];const alt=shuffle(D.filter(x=>x.id!==d.id).flatMap(x=>[...x.yl.matchAll(/==(.+?)==/g)].map(m=>m[1])).filter(w=>w!==k&&Math.abs(w.length-k.length)<=4&&!ks.includes(w))).slice(0,3);
+        qs.push({ty:'kw',d,clue:plain(d.yl.replace('=='+k+'==','【　？　】')),q:`「${d.t}」：空里填什么？`,kopts:shuffle([k,...alt]),ans:k})}}}});
+  return qs}
+function enterQuiz(){setPlay(false);clearTimeout(timer);quiz.on=true;$('#tQuiz').setAttribute('aria-pressed','true');$('#app').classList.add('quizzing');intro()}
+function quitQuiz(){quiz.on=false;$('#tQuiz').setAttribute('aria-pressed','false');$('#app').classList.remove('quizzing');load(st.cur,{auto:false})}
+$('#tQuiz').onclick=()=>quiz.on?quitQuiz():enterQuiz();
+function intro(){$('#card').className='card';$('#card').innerHTML=`<div class="qz"><div class="qt">原理闯关</div><div class="qq">10 道题：看成语认原理、看方法论认原理、关键词填空</div>
+  <p>出题范围：<b style="color:var(--gold)">${LVB[st.minLv]}</b>（${D.filter(visible).length} 个原理）。每答一题，左边会播放这个原理的动画。答错的进错题本。</p>
+  <div class="row"><button class="btn pri" id="qGo">开始闯关</button><button class="btn" id="qWk" ${WEAK.size>=1?'':'disabled'}>只练错题（${WEAK.size}）</button></div><div class="row"><button class="btn" id="qQ">退出</button></div></div>`;
+  $('#qGo').onclick=()=>start(D.filter(visible));$('#qWk').onclick=()=>start(D.filter(d=>WEAK.has(d.t)));$('#qQ').onclick=quitQuiz}
+function start(pool){Object.assign(quiz,{qs:makeQs(pool),i:0,score:0,wrong:[]});showQ()}
+function showQ(){const qn=quiz.qs[quiz.i],n=quiz.qs.length;quiz.done=false;
+  sv.innerHTML=DEFS+`<text class="end" x="400" y="200" font-size="64">？</text><text class="t2" x="400" y="262" font-size="16">答完这题，这里播放对应的原理动画</text>`;$('#chn').textContent='闯关测验';$('#ttl').textContent=`第 ${quiz.i+1} 题`;$('#lvt').textContent='';$('#lvt').className='';$('#cap').innerHTML=`<span>得分 ${quiz.score}</span>`;$('#dots').innerHTML='';
+  const opts=qn.ty==='kw'?qn.kopts.map((k,i)=>`<button class="opt" data-v="${esc(k)}"><span class="n">${i+1}</span>${esc(k)}</button>`):qn.opts.map((d,i)=>`<button class="opt" data-v="${d.id}"><span class="n">${i+1}</span>${esc(d.t)}</button>`);
+  $('#card').innerHTML=`<div class="qz"><div class="qh"><span>第 <b>${quiz.i+1}</b> / ${n} 题</span><span>得分 <b>${quiz.score}</b></span></div><div class="bar"><i style="width:${quiz.i/n*100}%"></i></div>
+  <div class="qt">${{ex:'例子 → 原理',ff:'方法论 → 原理',kw:'关键词填空'}[qn.ty]}</div><div class="qq">${esc(qn.q)}</div><div class="clue">${esc(qn.clue)}</div><div class="opts">${opts.join('')}</div><div id="qfb"></div></div>`;$('#card').scrollTop=0;
+  document.querySelectorAll('.qz .opt').forEach(b=>b.onclick=()=>{if(quiz.done)return;quiz.done=true;const right=qn.ty==='kw'?qn.ans:String(qn.d.id),ok=b.dataset.v===right;
+    document.querySelectorAll('.qz .opt').forEach(x=>{if(x.dataset.v===right)x.classList.add('ok');else if(x===b)x.classList.add('bad')});
+    if(ok){quiz.score++;WEAK.delete(qn.d.t)}else{WEAK.add(qn.d.t);quiz.wrong.push(qn.d)}sv_('my.weak',WEAK);
+    const d=qn.d;scene=T[d.a.type](d.a);sv.innerHTML=DEFS+scene.svg;$('#ttl').textContent=d.t;$('#chn').textContent=CH[d.ch];$('#dots').innerHTML='<i></i>'.repeat(scene.caps.length);setStep(0);autoStep();
+    const last=quiz.i>=n-1;$('#qfb').innerHTML=`<div class="fb ${ok?'ok':'bad'}"><b class="v">${ok?'✓ 答对了':'✗ 记一下'}</b><b>${esc(d.t)}</b><br>${fmt(d.yl)}</div><div class="row"><button class="btn pri" id="qN">${last?'看成绩':'下一题'}</button></div>`;
+    $('#qN').onclick=()=>{clearTimeout(timer);if(last)endQ();else{quiz.i++;showQ()}}})}
+function endQ(){const n=quiz.qs.length,s=quiz.score,W=[...new Set(quiz.wrong)];$('#ttl').textContent='闯关完成';$('#cap').innerHTML='';
+  $('#card').innerHTML=`<div class="qz"><div class="qt">闯关完成</div><div class="big" style="margin:12px 0 6px">${s}<small> / ${n}</small></div>
+  <p>${s/n>=.9?'很扎实，可以换成“全部原理”再来一轮。':s/n>=.6?'基本掌握，把下面的错题动画再看一遍。':'先开“连播”把这一章完整看一遍，再回来闯关。'}</p>
+  ${W.length?`<div class="sec"><h3 class="r">这轮答错的</h3><div class="list">${W.map(d=>`<button data-qid="${d.id}">${esc(CH[d.ch])} · ${esc(d.t)}</button>`).join('')}</div></div>`:''}
+  <div class="row"><button class="btn pri" id="qA">再来一轮</button><button class="btn" id="qWk" ${WEAK.size?'':'disabled'}>练错题本（${WEAK.size}）</button></div><div class="row"><button class="btn" id="qQ">退出闯关</button></div></div>`;
+  $('#qA').onclick=()=>start(D.filter(visible));$('#qWk').onclick=()=>start(D.filter(d=>WEAK.has(d.t)));$('#qQ').onclick=quitQuiz;
+  document.querySelectorAll('[data-qid]').forEach(b=>b.onclick=()=>{st.cur=+b.dataset.qid;quitQuiz();autoStep()})}
+
+/* 启动 */
+paintLv();buildNav();let s0=D.findIndex(d=>d.t==='物质与意识的辩证关系');
+try{const t=localStorage.getItem('my.cur'),i=D.findIndex(d=>d.t===t);if(i>=0&&visible(D[i]))s0=i}catch(e){}
+if(!visible(D[s0]))s0=D.find(visible).id;load(s0);
+</script>
+
+</body></html>
